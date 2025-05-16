@@ -33,7 +33,7 @@ async function getLatestMovies(pageNumber) {
        const imgcart = document.createElement('div');
        imgcart.classList.add("imgcart");
        const posterUrl = item.poster_path
-       ? `https://image.tmdb.org/t/p/w1280/${item.poster_path}`
+       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
        : 'images/logo.png';
        imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
        latestMovies.appendChild(imgcart);
@@ -66,8 +66,10 @@ async function getLatestMovies(pageNumber) {
         `;
        cartInfo.classList.add("cartInfo");
        imgcart.append(cartInfo);
+       imgcart.addEventListener("click",(e)=>{
+        moreDetails('movie',item.id);
+       });
     });
-  
     btnForLatest.style.display="flex";
     btnforSearch.style.display="none";
   } catch (error) {
@@ -85,7 +87,7 @@ SearchResult.classList.add("SearchResult");
 
 pageNumber=1;
 async function searchonTmdb(query,pageNumber) {
-    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`;
+    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=Hi&page=${pageNumber}&include_adult=false`;
   
     try {
       const response = await fetch(url);
@@ -101,10 +103,11 @@ async function searchonTmdb(query,pageNumber) {
         imgcart.classList.add("imgcart");
   
         const posterUrl = item.poster_path
-          ? `https://image.tmdb.org/t/p/w1280/${item.poster_path}`
+          ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
           : 'images/logo.png';
         
          mainContainer.appendChild(SearchResult);
+
         imgcart.innerHTML = `<img src="${posterUrl}" alt="${item.title || item.name}">`;
         SearchResult.appendChild(imgcart);
   
@@ -138,15 +141,18 @@ async function searchonTmdb(query,pageNumber) {
            <h4>${title}</h4>
         `;
        imgcart.append(cartInfo);
-    
+       imgcart.addEventListener("click",(e)=>{
+        moreDetails(item.media_type,item.id);
+       });
 
       });
+      console.log(data);
       btnForLatest.style.display="none";
       if(data.page<data.total_pages)
       btnforSearch.style.display="flex";
       else
       btnforSearch.style.display="none";
-      console.log(data.page,data.total_pages);
+    
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -171,3 +177,13 @@ async function searchonTmdb(query,pageNumber) {
    spinner.classList.add('hidden');
  }); 
 
+function moreDetails(category,id){
+
+   fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
+  .then(response => response.json())
+  .then(data => {
+    console.log('TV Show:', data);
+  })
+  .catch(error => console.error('Error fetching TV show:', error));
+
+}
