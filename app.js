@@ -2,12 +2,17 @@ const form = document.querySelector("form");
 const mainContainer = document.querySelector(".main-container");
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 const BASE_URL = 'https://api.themoviedb.org/3';
+const btnForLatest = document.querySelector(".btn-for-lates");
+const btnforSearch = document.querySelector(".btn-for-search");
 let pageNumber = 1;
-
+let searchTime =1
+let query;
 form.addEventListener('submit',(e)=>{
     e.preventDefault();
-    let query=form.querySelector('input').value;
-    searchonTmdb(query);
+    query=form.querySelector('input').value;
+    searchTime=1;
+    pageNumber=1;
+    searchonTmdb(query,pageNumber);
 
 })
 getLatestMovies(pageNumber);
@@ -62,27 +67,32 @@ async function getLatestMovies(pageNumber) {
        cartInfo.classList.add("cartInfo");
        imgcart.append(cartInfo);
     });
-   
   
+    btnForLatest.style.display="flex";
+    btnforSearch.style.display="none";
   } catch (error) {
     console.error("Failed to fetch movies:", error);
   }
 }
 
-function loadMoreREsult(){
-  getLatestMovies(++pageNumber);
+function loadMoreREsultLates(){
+   
+   getLatestMovies(++pageNumber);
 }
 
 const SearchResult = document.createElement('div');
 SearchResult.classList.add("SearchResult");
-async function searchonTmdb(query) {
-    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`;
+
+pageNumber=1;
+async function searchonTmdb(query,pageNumber) {
+    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`;
   
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
+        if(searchTime==1)
         mainContainer.innerHTML="";
-        SearchResult.innerHTML="";
+        searchTime++;
         const data = await response.json();
         data.results.forEach(item => {
         if (item.media_type === 'person') return
@@ -127,14 +137,24 @@ async function searchonTmdb(query) {
           </h4>
            <h4>${title}</h4>
         `;
-        
-  
-        imgcart.append(cartInfo);
+       imgcart.append(cartInfo);
+    
+
       });
+      btnForLatest.style.display="none";
+      if(data.page<data.total_pages)
+      btnforSearch.style.display="flex";
+      else
+      btnforSearch.style.display="none";
+      console.log(data.page,data.total_pages);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   }
+ 
+ function loadMoreREsultSearch() {
+    searchonTmdb(query,++pageNumber)
+ }
   
  // lodeMore 
  const loadMoreBtn = document.getElementById('loadMoreBtn');
