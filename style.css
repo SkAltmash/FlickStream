@@ -59,8 +59,10 @@ form button{
 .main-contaner{
     width: 100vw;
 }
-.latestMovies{
-  padding-top: 20px;
+.latestMovies,.TrendingOnNetflix,.TrendingOnAmazon,.TrendingOnhotstar
+
+{
+   padding-top: 20px;
     width: 100%;
     display: flex;
     overflow-x:auto ;
@@ -211,7 +213,7 @@ form button{
     height: 70px;
    }
    .SearchResult{
-    gap: 5px;
+    gap:10px;
    }
    .logo img{
     height: 70px;
@@ -219,7 +221,7 @@ form button{
    }
    .imgcart{
     height: 400px;
-    width: 180px;
+    width: 170px;
    }   
     .imgcart img{
       height: 60%;

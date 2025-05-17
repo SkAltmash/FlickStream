@@ -17,13 +17,18 @@ form.addEventListener('submit',(e)=>{
     searchonTmdb(query,pageNumber);
 
 })
-getLatestMovies(pageNumber);
-getLatestShow(pageNumber);
+lodeHomePage();
+function lodeHomePage(){
+   getLatestMovies();
+   getLatestShow();
+   getLatestShowNetflix();
+   getLatestShowAmazon();
+   getLatestShowHotstar();
+}
 
-async function getLatestMovies(pageNumber) {
+async function getLatestMovies() {
   try {
-    const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${pageNumber}
-`);
+    const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -75,6 +80,7 @@ async function getLatestMovies(pageNumber) {
        imgcart.append(cartInfo);
        imgcart.addEventListener("click",(e)=>{
         moreDetails('movie',item.id);
+
        });
     });
     btnforSearch.style.display="none";
@@ -82,21 +88,18 @@ async function getLatestMovies(pageNumber) {
     console.error("Failed to fetch movies:", error);
   }
 }
-async function getLatestShow(pageNumber) {
+async function getLatestShow() {
   try {
-    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&page=${pageNumber}
-`);
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const data = await response.json();
-    const latestMovies = document.createElement('div');
-    latestMovies.classList.add("latestMovies");
-    if(pageNumber==1){
+    const latestShowow = document.createElement('div');
+    latestShowow.classList.add("latestMovies");
     mainContainer.innerHTML+=`<h2>latest Show</h1>`;
-    }
-    mainContainer.appendChild(latestMovies);
+    mainContainer.appendChild(latestShowow);
 
     data.results.forEach(item => {
        const imgcart = document.createElement('div');
@@ -105,7 +108,7 @@ async function getLatestShow(pageNumber) {
        ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
        : 'images/logo.png';
        imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
-       latestMovies.appendChild(imgcart);
+       latestShowow.appendChild(imgcart);
        const cartInfo = document.createElement('div');
 
       let ratingClass = '';
@@ -136,7 +139,8 @@ async function getLatestShow(pageNumber) {
        cartInfo.classList.add("cartInfo");
        imgcart.append(cartInfo);
        imgcart.addEventListener("click",(e)=>{
-        moreDetails('movie',item.id);
+        moreDetails('tv',item.id);
+
        });
     });
     btnforSearch.style.display="none";
@@ -144,7 +148,180 @@ async function getLatestShow(pageNumber) {
     console.error("Failed to fetch movies:", error);
   }
 }
+async function getLatestShowNetflix() {
+  try {
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=213`);   if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const latestShowow = document.createElement('div');
+    latestShowow.classList.add("TrendingOnNetflix");
+    mainContainer.innerHTML+=`<h2>Trending On Netflix</h1>`;
+    mainContainer.appendChild(latestShowow);
 
+    data.results.forEach(item => {
+       const imgcart = document.createElement('div');
+       imgcart.classList.add("imgcart");
+       const posterUrl = item.poster_path
+       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
+       : 'images/logo.png';
+       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
+       latestShowow.appendChild(imgcart);
+       const cartInfo = document.createElement('div');
+
+      let ratingClass = '';
+      let ratingText = '';
+
+      if (item.vote_average === null || item.vote_average === 0) {
+      ratingClass = 'rating-no';    
+      ratingText = 'N/A';          
+      }  
+       else if (item.vote_average >= 7) {
+       ratingClass = 'rating-high';
+       ratingText = item.vote_average.toFixed(1);
+      }
+       else if (item.vote_average >= 5) {
+        ratingClass = 'rating-mid';
+        ratingText = item.vote_average.toFixed(1);
+      } 
+      else{
+      ratingClass = 'rating-low';
+      ratingText = item.vote_average.toFixed(1);
+      }
+
+        cartInfo.innerHTML = `
+        <h4 class="${ratingClass}">
+        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
+        <h4>${item.name}
+        `;
+       cartInfo.classList.add("cartInfo");
+       imgcart.append(cartInfo);
+       imgcart.addEventListener("click",(e)=>{
+        moreDetails('tv',item.id);
+
+       });
+    });
+    btnforSearch.style.display="none";
+  } catch (error) {
+    console.error("Failed to fetch movies:", error);
+  }
+}
+async function getLatestShowAmazon() {
+  try {
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=1024`);   if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const latestShowow = document.createElement('div');
+    latestShowow.classList.add("TrendingOnAmazon");
+    mainContainer.innerHTML+=`<h2>Trending On Amazon Prime </h1>`;
+    mainContainer.appendChild(latestShowow);
+
+    data.results.forEach(item => {
+       const imgcart = document.createElement('div');
+       imgcart.classList.add("imgcart");
+       const posterUrl = item.poster_path
+       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
+       : 'images/logo.png';
+       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
+       latestShowow.appendChild(imgcart);
+       const cartInfo = document.createElement('div');
+
+      let ratingClass = '';
+      let ratingText = '';
+
+      if (item.vote_average === null || item.vote_average === 0) {
+      ratingClass = 'rating-no';    
+      ratingText = 'N/A';          
+      }  
+       else if (item.vote_average >= 7) {
+       ratingClass = 'rating-high';
+       ratingText = item.vote_average.toFixed(1);
+      }
+       else if (item.vote_average >= 5) {
+        ratingClass = 'rating-mid';
+        ratingText = item.vote_average.toFixed(1);
+      } 
+      else{
+      ratingClass = 'rating-low';
+      ratingText = item.vote_average.toFixed(1);
+      }
+
+        cartInfo.innerHTML = `
+        <h4 class="${ratingClass}">
+        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
+        <h4>${item.name}
+        `;
+       cartInfo.classList.add("cartInfo");
+       imgcart.append(cartInfo);
+       imgcart.addEventListener("click",(e)=>{
+        moreDetails('tv',item.id);
+
+       });
+    });
+    btnforSearch.style.display="none";
+  } catch (error) {
+    console.error("Failed to fetch movies:", error);
+  }
+}
+async function getLatestShowHotstar() {
+  try {
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=3919`);   if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const latestShowow = document.createElement('div');
+    latestShowow.classList.add("TrendingOnhotstar");
+    mainContainer.innerHTML+=`<h2> Trending On Jio Hotstar</h1>`;
+    mainContainer.appendChild(latestShowow);
+
+    data.results.forEach(item => {
+       const imgcart = document.createElement('div');
+       imgcart.classList.add("imgcart");
+       const posterUrl = item.poster_path
+       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
+       : 'images/logo.png';
+       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
+       latestShowow.appendChild(imgcart);
+       const cartInfo = document.createElement('div');
+
+      let ratingClass = '';
+      let ratingText = '';
+
+      if (item.vote_average === null || item.vote_average === 0) {
+      ratingClass = 'rating-no';    
+      ratingText = 'N/A';          
+      }  
+       else if (item.vote_average >= 7) {
+       ratingClass = 'rating-high';
+       ratingText = item.vote_average.toFixed(1);
+      }
+       else if (item.vote_average >= 5) {
+        ratingClass = 'rating-mid';
+        ratingText = item.vote_average.toFixed(1);
+      } 
+      else{
+      ratingClass = 'rating-low';
+      ratingText = item.vote_average.toFixed(1);
+      }
+
+        cartInfo.innerHTML = `
+        <h4 class="${ratingClass}">
+        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
+        <h4>${item.name}
+        `;
+       cartInfo.classList.add("cartInfo");
+       imgcart.append(cartInfo);
+       imgcart.addEventListener("click",(e)=>{
+        moreDetails('tv',item.id);
+
+       });
+    });
+    btnforSearch.style.display="none";
+  } catch (error) {
+    console.error("Failed to fetch movies:", error);
+  }
+}
 
 const SearchResult = document.createElement('div');
 SearchResult.classList.add("SearchResult");
@@ -156,7 +333,6 @@ async function searchonTmdb(query,pageNumber) {
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
-      console.log(searchTime)
         if(searchTime==1){
         mainContainer.innerHTML="";
         SearchResult.innerHTML="";
@@ -213,7 +389,6 @@ async function searchonTmdb(query,pageNumber) {
        });
 
       });
-      console.log(data);
       if(data.page<data.total_pages)
       btnforSearch.style.display="flex";
       else
@@ -248,10 +423,10 @@ function moreDetails(category,id){
    fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
   .then(response => response.json())
   .then(data => {
-    console.log(data);
     if(window.innerWidth<=580){
     moreDetailsContaner.style.background=`linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)),url("https://image.tmdb.org/t/p/w300/${data.poster_path}")`;
     var script = document.createElement('script');
+    moreDetailsContaner.style.transform="scale(1)";
     script.src='mobile.js'
     document.head.append('script');
     }
