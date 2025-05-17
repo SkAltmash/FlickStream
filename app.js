@@ -322,12 +322,11 @@ async function searchonTmdb(query,pageNumber) {
         ? `https://image.tmdb.org/t/p/${posterSize}${data.poster_path}` 
         : 'images/logo.png';
 
-      // Set background and clear old content
-      moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)), url("${posterPath}")`;
+      moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, 1)), url("${posterPath}") center/cover no-repeat`;
       moreDetailsContaner.style.transform = "scale(1)";
       moreDetailsContaner.innerHTML = '';
 
-      // Add close button
+      // Close Button
       const closeBtn = document.createElement('button');
       closeBtn.innerHTML = '&times;';
       closeBtn.className = 'close-btn';
@@ -338,24 +337,12 @@ async function searchonTmdb(query,pageNumber) {
       });
       moreDetailsContaner.appendChild(closeBtn);
 
-      // Load platform-specific script if not already loaded
+      // Load device-specific script
       if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
         const script = document.createElement('script');
         script.src = scriptSrc;
         document.head.appendChild(script);
       }
-
-      // Add content section (title, release, overview)
-      const content = document.createElement('div');
-      content.className = 'details-content';
-      content.innerHTML = `
-        <div class="details-header">
-          <h2 class="movie-title">${data.name || data.title}</h2>
-          <p class="movie-release">Release: ${data.release_date || data.first_air_date || 'N/A'}</p>
-        </div>
-        <p class="movie-overview">${data.overview || 'No overview available.'}</p>
-      `;
-      moreDetailsContaner.appendChild(content);
 
       // Fetch trailer
       fetch(`https://api.themoviedb.org/3/${category}/${id}/videos?api_key=${API_KEY}`)
@@ -365,56 +352,49 @@ async function searchonTmdb(query,pageNumber) {
             vid => vid.site === 'YouTube' && vid.type === 'Trailer'
           );
 
+          const wrapper = document.createElement('div');
+          wrapper.className = 'details-wrapper';
+
           if (youtubeTrailer) {
-            // Responsive trailer container
             const trailerContainer = document.createElement('div');
-            trailerContainer.className = 'trailer-container';
-            trailerContainer.style.position = 'relative';
-            trailerContainer.style.paddingBottom = '56.25%';
-            trailerContainer.style.height = '0';
-            trailerContainer.style.overflow = 'hidden';
-            trailerContainer.style.marginTop = '20px';
-
-            const iframe = document.createElement('iframe');
-            iframe.src = `https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=1&mute=1&rel=0`;
-            iframe.allow = 'autoplay; encrypted-media';
-            iframe.allowFullscreen = true;
-            iframe.frameBorder = '0';
-            iframe.style.position = 'absolute';
-            iframe.style.top = '0';
-            iframe.style.left = '0';
-          
-
-            trailerContainer.appendChild(iframe);
-            moreDetailsContaner.appendChild(trailerContainer);
+            trailerContainer.className = 'video-wrapper';
+            trailerContainer.innerHTML = `
+              <iframe 
+                src="https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=1&mute=0&rel=0" 
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                allowfullscreen
+              ></iframe>
+            `;
+            wrapper.appendChild(trailerContainer);
           } else {
-            // Fallback: show poster or backdrop
             const fallbackImg = document.createElement('img');
             fallbackImg.src = `https://image.tmdb.org/t/p/w780/${data.backdrop_path || data.poster_path}`;
             fallbackImg.alt = 'Trailer not available';
-            fallbackImg.style.width = '100%';
-            fallbackImg.style.maxWidth = '800px';
-            fallbackImg.style.display = 'block';
-            fallbackImg.style.margin = '20px auto';
-            fallbackImg.style.borderRadius = '8px';
+            fallbackImg.className = 'fallback-image';
 
             const notice = document.createElement('p');
             notice.textContent = "Trailer not available.";
-            notice.style.textAlign = 'center';
-            notice.style.color = '#aaa';
-            notice.style.marginTop = '10px';
+            notice.className = 'trailer-notice';
 
-            moreDetailsContaner.appendChild(fallbackImg);
-            moreDetailsContaner.appendChild(notice);
+            wrapper.appendChild(fallbackImg);
+            wrapper.appendChild(notice);
           }
+          const content = document.createElement('div');
+          content.className = 'details-content';
+          content.innerHTML = `
+            <h2 class="movie-title">${data.name || data.title}</h2>
+            <p class="movie-release">Release: ${data.release_date || data.first_air_date || 'N/A'}</p>
+            <p class="movie-overview">${data.overview || 'No overview available.'}</p>
+          `;
+
+          wrapper.appendChild(content);
+          moreDetailsContaner.appendChild(wrapper);
+          if(data.category==='tv')
+          content.log("tv   jhaha");
+        console.log(data)
         });
     })
     .catch(error => console.error('Error fetching details:', error));
 }
 
-closeBtn.addEventListener('click', () => {
-  mainContainer.style.transform="scale(1)";
-  moreDetailsContaner.style.transform = "scale(0)";
-  moreDetailsContaner.innerHTML = ''; // Removes trailer and details
- 
-});
