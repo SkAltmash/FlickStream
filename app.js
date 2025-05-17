@@ -1,9 +1,10 @@
 const form = document.querySelector("form");
 const mainContainer = document.querySelector(".main-container");
+const btnforSearch = document.querySelector(".btn-for-search");
+const moreDetailsContaner = document.querySelector(".more-details");
+
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 const BASE_URL = 'https://api.themoviedb.org/3';
-const btnForLatest = document.querySelector(".btn-for-lates");
-const btnforSearch = document.querySelector(".btn-for-search");
 let pageNumber = 1;
 let searchTime =1
 let query;
@@ -12,10 +13,12 @@ form.addEventListener('submit',(e)=>{
     query=form.querySelector('input').value;
     searchTime=1;
     pageNumber=1;
+    
     searchonTmdb(query,pageNumber);
 
 })
 getLatestMovies(pageNumber);
+getLatestShow(pageNumber);
 
 async function getLatestMovies(pageNumber) {
   try {
@@ -24,11 +27,15 @@ async function getLatestMovies(pageNumber) {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-   
+    
     const data = await response.json();
     const latestMovies = document.createElement('div');
     latestMovies.classList.add("latestMovies");
+    if(pageNumber==1){
+    mainContainer.innerHTML=`<h2>latestMovies</h1>`;
+    }
     mainContainer.appendChild(latestMovies);
+
     data.results.forEach(item => {
        const imgcart = document.createElement('div');
        imgcart.classList.add("imgcart");
@@ -70,30 +77,90 @@ async function getLatestMovies(pageNumber) {
         moreDetails('movie',item.id);
        });
     });
-    btnForLatest.style.display="flex";
+    btnforSearch.style.display="none";
+  } catch (error) {
+    console.error("Failed to fetch movies:", error);
+  }
+}
+async function getLatestShow(pageNumber) {
+  try {
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&page=${pageNumber}
+`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    const latestMovies = document.createElement('div');
+    latestMovies.classList.add("latestMovies");
+    if(pageNumber==1){
+    mainContainer.innerHTML+=`<h2>latest Show</h1>`;
+    }
+    mainContainer.appendChild(latestMovies);
+
+    data.results.forEach(item => {
+       const imgcart = document.createElement('div');
+       imgcart.classList.add("imgcart");
+       const posterUrl = item.poster_path
+       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
+       : 'images/logo.png';
+       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
+       latestMovies.appendChild(imgcart);
+       const cartInfo = document.createElement('div');
+
+      let ratingClass = '';
+      let ratingText = '';
+
+      if (item.vote_average === null || item.vote_average === 0) {
+      ratingClass = 'rating-no';    
+      ratingText = 'N/A';          
+      }  
+       else if (item.vote_average >= 7) {
+       ratingClass = 'rating-high';
+       ratingText = item.vote_average.toFixed(1);
+      }
+       else if (item.vote_average >= 5) {
+        ratingClass = 'rating-mid';
+        ratingText = item.vote_average.toFixed(1);
+      } 
+      else{
+      ratingClass = 'rating-low';
+      ratingText = item.vote_average.toFixed(1);
+      }
+
+        cartInfo.innerHTML = `
+        <h4 class="${ratingClass}">
+        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
+        <h4>${item.name}
+        `;
+       cartInfo.classList.add("cartInfo");
+       imgcart.append(cartInfo);
+       imgcart.addEventListener("click",(e)=>{
+        moreDetails('movie',item.id);
+       });
+    });
     btnforSearch.style.display="none";
   } catch (error) {
     console.error("Failed to fetch movies:", error);
   }
 }
 
-function loadMoreREsultLates(){
-   
-   getLatestMovies(++pageNumber);
-}
 
 const SearchResult = document.createElement('div');
 SearchResult.classList.add("SearchResult");
 
 pageNumber=1;
 async function searchonTmdb(query,pageNumber) {
-    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=Hi&page=${pageNumber}&include_adult=false`;
+    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`;
   
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
-        if(searchTime==1)
+      console.log(searchTime)
+        if(searchTime==1){
         mainContainer.innerHTML="";
+        SearchResult.innerHTML="";
+        }
         searchTime++;
         const data = await response.json();
         data.results.forEach(item => {
@@ -147,7 +214,6 @@ async function searchonTmdb(query,pageNumber) {
 
       });
       console.log(data);
-      btnForLatest.style.display="none";
       if(data.page<data.total_pages)
       btnforSearch.style.display="flex";
       else
@@ -182,7 +248,20 @@ function moreDetails(category,id){
    fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
   .then(response => response.json())
   .then(data => {
-    console.log('TV Show:', data);
+    console.log(data);
+    if(window.innerWidth<=580){
+    moreDetailsContaner.style.background=`linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)),url("https://image.tmdb.org/t/p/w300/${data.poster_path}")`;
+    var script = document.createElement('script');
+    script.src='mobile.js'
+    document.head.append('script');
+    }
+    else{
+      moreDetailsContaner.style.background=`linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)),url("https://image.tmdb.org/t/p/w780/${data.poster_path}")`;
+      moreDetailsContaner.style.transform="scale(1)";
+     var script = document.createElement('script');
+     script.src='desktop.js'
+     document.head.append('script');
+    }
   })
   .catch(error => console.error('Error fetching TV show:', error));
 

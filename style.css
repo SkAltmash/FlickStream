@@ -59,13 +59,18 @@ form button{
 .main-contaner{
     width: 100vw;
 }
-.latestMovies,.SearchResult{
-    padding-top: 50px;
+.latestMovies{
+  padding-top: 20px;
     width: 100%;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    overflow-x:auto ;
+    scroll-snap-type:x mandatory ;
     gap: 15px;
+    padding-bottom: 50px;
+    padding-left: 20px;
+}
+.scroll-seaction::-webkit-scrollbar{
+  display: none;
 }
 .imgcart{
     height: 370px;
@@ -74,6 +79,9 @@ form button{
     background-color: #1a1a1a;
     border-radius: 12px;
     transition: transform 0.3s ease;
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+
 }
 .imgcart img{
     height: 80%;
@@ -86,7 +94,19 @@ form button{
     transform: scale(1.05);
     box-shadow: 0 0 10px #e50914;
 }
-  
+.main-container h2{
+  color: #e50914;
+  padding-top: 20px;
+  margin-left: 20px;
+  font-size: 2rem;
+}
+.SearchResult{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-left: 10px;
+  padding-top: 20px;
+}  
  .rating-low {
     color: #ff4c4c;
   }
@@ -99,7 +119,7 @@ form button{
     color: #00c853;
   }
   .rating-no {
-    color: pink; 
+    color: grey; 
     font-style: italic;
   }
 .cartInfo{
@@ -168,14 +188,30 @@ form button{
 .btn-for-search,.btn-for-lates{
   display:none;
 }
+.more-details{
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    object-fit: cover;
+    color: #fff;
+    top: 0;
+    display: flex;
+    overflow-y: scroll;
+    transition: 100ms ease-in-out transform;
+    transform: scale(0);
+}
 
-
- @media (max-width: 480px) {
+ @media (max-width: 580px) {
    nav{
     height:70px;
    }
    .logo{
     height: 70px;
+   }
+   .SearchResult{
+    gap: 5px;
    }
    .logo img{
     height: 70px;
@@ -183,7 +219,7 @@ form button{
    }
    .imgcart{
     height: 400px;
-    width: 170px;
+    width: 180px;
    }   
     .imgcart img{
       height: 60%;
