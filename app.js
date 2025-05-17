@@ -25,303 +25,171 @@ function lodeHomePage(){
    getLatestShowAmazon();
    getLatestShowHotstar();
 }
+function createSection(titleText, containerClass) {
+  const sectionWrapper = document.createElement("section");
+  sectionWrapper.classList.add("movie-section");
+
+  const title = document.createElement("h2");
+  title.className = "section-title";
+  title.textContent = titleText;
+
+  const contentDiv = document.createElement("div");
+  contentDiv.classList.add(containerClass);
+
+  sectionWrapper.appendChild(title);
+  sectionWrapper.appendChild(contentDiv);
+  mainContainer.appendChild(sectionWrapper);
+
+  return contentDiv;
+}
+
+function createMovieCard(item, type) {
+  const imgcart = document.createElement('div');
+  imgcart.classList.add("imgcart");
+
+  const posterUrl = item.poster_path
+    ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
+    : 'images/logo.png';
+
+ imgcart.innerHTML = `
+         <img 
+           src="images/lodar.webp"
+           data-src="${posterUrl}" 
+           class="movie-img lazy-load" 
+           loading="lazy"
+         >
+       `;
+  const cartInfo = document.createElement('div');
+  cartInfo.classList.add("cartInfo");
+
+  let ratingClass = '';
+  let ratingText = '';
+
+  if (!item.vote_average || item.vote_average === 0) {
+    ratingClass = 'rating-no';
+    ratingText = 'N/A';
+  } else if (item.vote_average >= 7) {
+    ratingClass = 'rating-high';
+    ratingText = item.vote_average.toFixed(1);
+  } else if (item.vote_average >= 5) {
+    ratingClass = 'rating-mid';
+    ratingText = item.vote_average.toFixed(1);
+  } else {
+    ratingClass = 'rating-low';
+    ratingText = item.vote_average.toFixed(1);
+  }
+
+  cartInfo.innerHTML = `
+    <h4 class="${ratingClass}">
+      <i class="fa-solid fa-star"></i> ${ratingText}
+    </h4>
+    <h4>${type === 'movie' ? item.title : item.name}</h4>
+  `;
+
+  imgcart.appendChild(cartInfo);
+  replaceLazyImages();
+  imgcart.addEventListener("click", () => {
+    moreDetails(type, item.id);
+  });
+
+  return imgcart;
+}
 
 async function getLatestMovies() {
   try {
     const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
     const data = await response.json();
-    const latestMovies = document.createElement('div');
-    latestMovies.classList.add("latestMovies");
-    if(pageNumber==1){
-    mainContainer.innerHTML=`<h2>latestMovies</h1>`;
-    }
-    mainContainer.appendChild(latestMovies);
+    const contentDiv = createSection("Latest Movies", "latestMovies");
 
     data.results.forEach(item => {
-       const imgcart = document.createElement('div');
-       imgcart.classList.add("imgcart");
-       const posterUrl = item.poster_path
-       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-       : 'images/logo.png';
-       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
-       latestMovies.appendChild(imgcart);
-       const cartInfo = document.createElement('div');
-
-      let ratingClass = '';
-      let ratingText = '';
-
-      if (item.vote_average === null || item.vote_average === 0) {
-      ratingClass = 'rating-no';    
-      ratingText = 'N/A';          
-      }  
-       else if (item.vote_average >= 7) {
-       ratingClass = 'rating-high';
-       ratingText = item.vote_average.toFixed(1);
-      }
-       else if (item.vote_average >= 5) {
-        ratingClass = 'rating-mid';
-        ratingText = item.vote_average.toFixed(1);
-      } 
-      else{
-      ratingClass = 'rating-low';
-      ratingText = item.vote_average.toFixed(1);
-      }
-
-        cartInfo.innerHTML = `
-        <h4 class="${ratingClass}">
-        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
-        <h4>${item.title}
-        `;
-       cartInfo.classList.add("cartInfo");
-       imgcart.append(cartInfo);
-       imgcart.addEventListener("click",(e)=>{
-        moreDetails('movie',item.id);
-
-       });
+      const card = createMovieCard(item, 'movie');
+      contentDiv.appendChild(card);
     });
-    btnforSearch.style.display="none";
+
+    btnforSearch.style.display = "none";
   } catch (error) {
     console.error("Failed to fetch movies:", error);
   }
 }
+
 async function getLatestShow() {
   try {
     const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
     const data = await response.json();
-    const latestShowow = document.createElement('div');
-    latestShowow.classList.add("latestMovies");
-    mainContainer.innerHTML+=`<h2>latest Show</h1>`;
-    mainContainer.appendChild(latestShowow);
+    const contentDiv = createSection("Latest Shows", "latestShow");
 
     data.results.forEach(item => {
-       const imgcart = document.createElement('div');
-       imgcart.classList.add("imgcart");
-       const posterUrl = item.poster_path
-       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-       : 'images/logo.png';
-       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
-       latestShowow.appendChild(imgcart);
-       const cartInfo = document.createElement('div');
-
-      let ratingClass = '';
-      let ratingText = '';
-
-      if (item.vote_average === null || item.vote_average === 0) {
-      ratingClass = 'rating-no';    
-      ratingText = 'N/A';          
-      }  
-       else if (item.vote_average >= 7) {
-       ratingClass = 'rating-high';
-       ratingText = item.vote_average.toFixed(1);
-      }
-       else if (item.vote_average >= 5) {
-        ratingClass = 'rating-mid';
-        ratingText = item.vote_average.toFixed(1);
-      } 
-      else{
-      ratingClass = 'rating-low';
-      ratingText = item.vote_average.toFixed(1);
-      }
-
-        cartInfo.innerHTML = `
-        <h4 class="${ratingClass}">
-        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
-        <h4>${item.name}
-        `;
-       cartInfo.classList.add("cartInfo");
-       imgcart.append(cartInfo);
-       imgcart.addEventListener("click",(e)=>{
-        moreDetails('tv',item.id);
-
-       });
+      const card = createMovieCard(item, 'tv');
+      contentDiv.appendChild(card);
     });
-    btnforSearch.style.display="none";
+
+    btnforSearch.style.display = "none";
   } catch (error) {
-    console.error("Failed to fetch movies:", error);
+    console.error("Failed to fetch shows:", error);
   }
 }
+
 async function getLatestShowNetflix() {
   try {
-    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=213`);   if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=213`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
     const data = await response.json();
-    const latestShowow = document.createElement('div');
-    latestShowow.classList.add("TrendingOnNetflix");
-    mainContainer.innerHTML+=`<h2>Trending On Netflix</h1>`;
-    mainContainer.appendChild(latestShowow);
+    const contentDiv = createSection("Trending on Netflix", "TrendingOnNetflix");
 
     data.results.forEach(item => {
-       const imgcart = document.createElement('div');
-       imgcart.classList.add("imgcart");
-       const posterUrl = item.poster_path
-       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-       : 'images/logo.png';
-       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
-       latestShowow.appendChild(imgcart);
-       const cartInfo = document.createElement('div');
-
-      let ratingClass = '';
-      let ratingText = '';
-
-      if (item.vote_average === null || item.vote_average === 0) {
-      ratingClass = 'rating-no';    
-      ratingText = 'N/A';          
-      }  
-       else if (item.vote_average >= 7) {
-       ratingClass = 'rating-high';
-       ratingText = item.vote_average.toFixed(1);
-      }
-       else if (item.vote_average >= 5) {
-        ratingClass = 'rating-mid';
-        ratingText = item.vote_average.toFixed(1);
-      } 
-      else{
-      ratingClass = 'rating-low';
-      ratingText = item.vote_average.toFixed(1);
-      }
-
-        cartInfo.innerHTML = `
-        <h4 class="${ratingClass}">
-        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
-        <h4>${item.name}
-        `;
-       cartInfo.classList.add("cartInfo");
-       imgcart.append(cartInfo);
-       imgcart.addEventListener("click",(e)=>{
-        moreDetails('tv',item.id);
-
-       });
+      const card = createMovieCard(item, 'tv');
+      contentDiv.appendChild(card);
     });
-    btnforSearch.style.display="none";
+
+    btnforSearch.style.display = "none";
   } catch (error) {
-    console.error("Failed to fetch movies:", error);
+    console.error("Failed to fetch Netflix shows:", error);
   }
 }
+
 async function getLatestShowAmazon() {
   try {
-    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=1024`);   if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=1024`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
     const data = await response.json();
-    const latestShowow = document.createElement('div');
-    latestShowow.classList.add("TrendingOnAmazon");
-    mainContainer.innerHTML+=`<h2>Trending On Amazon Prime </h1>`;
-    mainContainer.appendChild(latestShowow);
+    const contentDiv = createSection("Trending on Amazon Prime", "TrendingOnAmazon");
 
     data.results.forEach(item => {
-       const imgcart = document.createElement('div');
-       imgcart.classList.add("imgcart");
-       const posterUrl = item.poster_path
-       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-       : 'images/logo.png';
-       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
-       latestShowow.appendChild(imgcart);
-       const cartInfo = document.createElement('div');
-
-      let ratingClass = '';
-      let ratingText = '';
-
-      if (item.vote_average === null || item.vote_average === 0) {
-      ratingClass = 'rating-no';    
-      ratingText = 'N/A';          
-      }  
-       else if (item.vote_average >= 7) {
-       ratingClass = 'rating-high';
-       ratingText = item.vote_average.toFixed(1);
-      }
-       else if (item.vote_average >= 5) {
-        ratingClass = 'rating-mid';
-        ratingText = item.vote_average.toFixed(1);
-      } 
-      else{
-      ratingClass = 'rating-low';
-      ratingText = item.vote_average.toFixed(1);
-      }
-
-        cartInfo.innerHTML = `
-        <h4 class="${ratingClass}">
-        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
-        <h4>${item.name}
-        `;
-       cartInfo.classList.add("cartInfo");
-       imgcart.append(cartInfo);
-       imgcart.addEventListener("click",(e)=>{
-        moreDetails('tv',item.id);
-
-       });
+      const card = createMovieCard(item, 'tv');
+      contentDiv.appendChild(card);
     });
-    btnforSearch.style.display="none";
+
+    btnforSearch.style.display = "none";
   } catch (error) {
-    console.error("Failed to fetch movies:", error);
+    console.error("Failed to fetch Amazon shows:", error);
   }
 }
+
 async function getLatestShowHotstar() {
   try {
-    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=3919`);   if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=3919`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
     const data = await response.json();
-    const latestShowow = document.createElement('div');
-    latestShowow.classList.add("TrendingOnhotstar");
-    mainContainer.innerHTML+=`<h2> Trending On Jio Hotstar</h1>`;
-    mainContainer.appendChild(latestShowow);
+    const contentDiv = createSection("Trending on Jio Hotstar", "TrendingOnHotstar");
 
     data.results.forEach(item => {
-       const imgcart = document.createElement('div');
-       imgcart.classList.add("imgcart");
-       const posterUrl = item.poster_path
-       ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-       : 'images/logo.png';
-       imgcart.innerHTML=`<img src=${posterUrl} loading="lazy" onload="this.classList.add('loaded')" class="movie-img">`
-       latestShowow.appendChild(imgcart);
-       const cartInfo = document.createElement('div');
-
-      let ratingClass = '';
-      let ratingText = '';
-
-      if (item.vote_average === null || item.vote_average === 0) {
-      ratingClass = 'rating-no';    
-      ratingText = 'N/A';          
-      }  
-       else if (item.vote_average >= 7) {
-       ratingClass = 'rating-high';
-       ratingText = item.vote_average.toFixed(1);
-      }
-       else if (item.vote_average >= 5) {
-        ratingClass = 'rating-mid';
-        ratingText = item.vote_average.toFixed(1);
-      } 
-      else{
-      ratingClass = 'rating-low';
-      ratingText = item.vote_average.toFixed(1);
-      }
-
-        cartInfo.innerHTML = `
-        <h4 class="${ratingClass}">
-        <i class="fa-solid fa-star"></i> ${ratingText}</h4>
-        <h4>${item.name}
-        `;
-       cartInfo.classList.add("cartInfo");
-       imgcart.append(cartInfo);
-       imgcart.addEventListener("click",(e)=>{
-        moreDetails('tv',item.id);
-
-       });
+      const card = createMovieCard(item, 'tv');
+      contentDiv.appendChild(card);
     });
-    btnforSearch.style.display="none";
+
+    btnforSearch.style.display = "none";
   } catch (error) {
-    console.error("Failed to fetch movies:", error);
+    console.error("Failed to fetch Hotstar shows:", error);
   }
 }
+
 
 const SearchResult = document.createElement('div');
 SearchResult.classList.add("SearchResult");
@@ -351,9 +219,17 @@ async function searchonTmdb(query,pageNumber) {
         
          mainContainer.appendChild(SearchResult);
 
-        imgcart.innerHTML = `<img src="${posterUrl}" alt="${item.title || item.name}">`;
+         imgcart.innerHTML = `
+         <img 
+           src="images/lodar.webp"
+           data-src="${posterUrl}" 
+           class="movie-img lazy-load" 
+           loading="lazy"
+         >
+       `;
         SearchResult.appendChild(imgcart);
-  
+        replaceLazyImages();
+
         const cartInfo = document.createElement('div');
         cartInfo.classList.add("cartInfo");
   
@@ -384,6 +260,7 @@ async function searchonTmdb(query,pageNumber) {
            <h4>${title}</h4>
         `;
        imgcart.append(cartInfo);
+
        imgcart.addEventListener("click",(e)=>{
         moreDetails(item.media_type,item.id);
        });
@@ -402,6 +279,21 @@ async function searchonTmdb(query,pageNumber) {
  function loadMoreREsultSearch() {
     searchonTmdb(query,++pageNumber)
  }
+ // lazay 
+ function replaceLazyImages() {
+  const lazyImages = document.querySelectorAll('.lazy-load');
+
+  lazyImages.forEach(img => {
+    const realSrc = img.getAttribute('data-src');
+    const tempImg = new Image();
+    tempImg.src = realSrc;
+
+    tempImg.onload = () => {
+      img.src = realSrc;
+      img.classList.add('loaded');
+    };
+  });
+}
   
  // lodeMore 
  const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -418,26 +310,95 @@ async function searchonTmdb(query,pageNumber) {
    spinner.classList.add('hidden');
  }); 
 
-function moreDetails(category,id){
+ function moreDetails(category, id) {
+  fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
+    .then(response => response.json())
+    .then(data => {
+      const posterSize = window.innerWidth <= 580 ? 'w300' : 'w780';
+      const scriptSrc = window.innerWidth <= 580 ? 'mobile.js' : 'desktop.js';
+      const posterPath = data.poster_path 
+        ? `https://image.tmdb.org/t/p/${posterSize}/${data.poster_path}` 
+        : 'images/logo.png';
 
-   fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
-  .then(response => response.json())
-  .then(data => {
-    if(window.innerWidth<=580){
-    moreDetailsContaner.style.background=`linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)),url("https://image.tmdb.org/t/p/w300/${data.poster_path}")`;
-    var script = document.createElement('script');
-    moreDetailsContaner.style.transform="scale(1)";
-    script.src='mobile.js'
-    document.head.append('script');
-    }
-    else{
-      moreDetailsContaner.style.background=`linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)),url("https://image.tmdb.org/t/p/w780/${data.poster_path}")`;
-      moreDetailsContaner.style.transform="scale(1)";
-     var script = document.createElement('script');
-     script.src='desktop.js'
-     document.head.append('script');
-    }
-  })
-  .catch(error => console.error('Error fetching TV show:', error));
+      // Set background
+      moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .8), rgba(0, 0, 0, 1)), url("${posterPath}")`;
+      moreDetailsContaner.style.transform = "scale(1)";
+      moreDetailsContaner.innerHTML = ''; // Clear old content
 
+      // Add close button
+      const closeBtn = document.createElement('button');
+      closeBtn.innerHTML = '&times;';
+      closeBtn.className = 'close-btn';
+      closeBtn.addEventListener('click', () => {
+        moreDetailsContaner.style.transform = "scale(0)";
+        moreDetailsContaner.innerHTML = '';
+      });
+      moreDetailsContaner.appendChild(closeBtn);
+
+      // Add platform-specific script if not already loaded
+      const script = document.createElement('script');
+      script.src = scriptSrc;
+      if (!document.querySelector(`script[src="${script.src}"]`)) {
+        document.head.appendChild(script);
+      }
+
+      // Fetch trailer from TMDB
+      fetch(`https://api.themoviedb.org/3/${category}/${id}/videos?api_key=${API_KEY}`)
+        .then(res => res.json())
+        .then(videoData => {
+          const youtubeTrailer = videoData.results.find(
+            vid => vid.site === 'YouTube' && vid.type === 'Trailer'
+          );
+
+          if (youtubeTrailer) {
+            const trailerContainer = document.createElement('div');
+            trailerContainer.className = 'trailer-container';
+
+            // Backdrop placeholder while iframe loads
+            const backdropImg = document.createElement('img');
+            backdropImg.src = `https://image.tmdb.org/t/p/w780/${data.backdrop_path}`;
+            backdropImg.className = 'trailer-backdrop';
+            trailerContainer.appendChild(backdropImg);
+
+            // YouTube iframe (hidden at first)
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=1&mute=1&rel=0`;
+            iframe.allow = 'autoplay; encrypted-media';
+            iframe.allowFullscreen = true;
+            iframe.frameBorder = '0';
+            iframe.className = 'trailer-video';
+            iframe.style.display = 'none';
+            
+            // Add content container
+   const content = document.createElement('div');
+   content.className = 'details-content';
+
+    content.innerHTML = `
+  <div class="details-header">
+    <h2 class="movie-title">${data.name || data.title}</h2>
+    <p class="movie-release">Release: ${data.release_date || data.first_air_date || 'N/A'}</p>
+  </div>
+  <p class="movie-overview">${data.overview || 'No overview available.'}</p>
+`;
+
+// Append text content before video
+            moreDetailsContaner.appendChild(content);
+
+            iframe.onload = () => {
+                 backdropImg.style.display = 'none';
+                 iframe.style.display = 'block';
+            };
+
+            trailerContainer.appendChild(iframe);
+            moreDetailsContaner.appendChild(trailerContainer);
+          }
+          
+        });
+    })
+    .catch(error => console.error('Error fetching details:', error));
 }
+
+closeBtn.addEventListener('click', () => {
+  moreDetailsContaner.style.transform = "scale(0)";
+  moreDetailsContaner.innerHTML = ''; // Removes trailer and details
+});
