@@ -65,9 +65,7 @@ form button{
     border: none;
     cursor: pointer;
 }
-.main-contaner{
-    width: 100vw;
-}
+
 /* Container for each section */
 .movie-section {
   padding: 10px 0;
@@ -336,6 +334,55 @@ form button{
   font-size: 1.1rem;
   line-height: 1.6;
 }
+.season-tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.season-btn {
+  padding: 8px 14px;
+  background: #333;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.season-btn.active {
+  background: #fff;
+  color: #000;
+  font-weight: bold;
+}
+
+.episodes-container {
+  margin-top: 20px;
+}
+
+.episode-card {
+  background: #111;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 12px;
+  margin: 10px 0;
+}
+
+.episode-inner {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.episode-still {
+  width: 160px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.episode-text {
+  flex: 1;
+}
 
 
 .main-footer {
@@ -395,7 +442,7 @@ form button{
       max-width: 270px;
      }
      .close-btn {
-      right: 10px;
+      right: 20px;
       top: 10px;
       font-size: 40px;
      }

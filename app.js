@@ -311,22 +311,17 @@ async function searchonTmdb(query,pageNumber) {
  }); 
 
  function moreDetails(category, id) {
-
   fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
     .then(response => response.json())
     .then(data => {
       const posterSize = window.innerWidth <= 580 ? 'w300' : 'w780';
-      const scriptSrc = window.innerWidth <= 580 ? 'mobile.js' : 'desktop.js';
-      const posterPath = data.poster_path 
-        ? `https://image.tmdb.org/t/p/${posterSize}${data.poster_path}` 
+      const posterPath = data.poster_path
+        ? `https://image.tmdb.org/t/p/${posterSize}${data.poster_path}`
         : 'images/logo.png';
 
       moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, 1)), url("${posterPath}") center/cover no-repeat`;
-    
-
       moreDetailsContaner.innerHTML = '';
 
-      // Close Button
       const closeBtn = document.createElement('button');
       closeBtn.innerHTML = '&times;';
       closeBtn.className = 'close-btn';
@@ -337,14 +332,7 @@ async function searchonTmdb(query,pageNumber) {
       });
       moreDetailsContaner.appendChild(closeBtn);
 
-      // Load device-specific script
-      if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
-        const script = document.createElement('script');
-        script.src = scriptSrc;
-        document.head.appendChild(script);
-      }
-
-      // Fetch trailer
+      // Trailer fetch
       fetch(`https://api.themoviedb.org/3/${category}/${id}/videos?api_key=${API_KEY}`)
         .then(res => res.json())
         .then(videoData => {
@@ -355,31 +343,29 @@ async function searchonTmdb(query,pageNumber) {
           const wrapper = document.createElement('div');
           wrapper.className = 'details-wrapper';
 
+          // --- TRAILER SECTION ---
+          const trailerWrapper = document.createElement('div');
+          trailerWrapper.className = 'video-wrapper';
+
           if (youtubeTrailer) {
-            const trailerContainer = document.createElement('div');
-            trailerContainer.className = 'video-wrapper';
-            trailerContainer.innerHTML = `
+            trailerWrapper.innerHTML = `
               <iframe 
-                src="https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=1&mute=0&rel=0" 
+                src="https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=0&mute=0&rel=0" 
                 frameborder="0"
                 allow="autoplay; encrypted-media"
                 allowfullscreen
               ></iframe>
             `;
-            wrapper.appendChild(trailerContainer);
           } else {
-            const fallbackImg = document.createElement('img');
-            fallbackImg.src = `https://image.tmdb.org/t/p/w780/${data.backdrop_path || data.poster_path}`;
-            fallbackImg.alt = 'Trailer not available';
-            fallbackImg.className = 'fallback-image';
-                 
-            const notice = document.createElement('p');
-            notice.textContent = "Trailer not available.";
-            notice.className = 'trailer-notice';
-
-            wrapper.appendChild(fallbackImg);
-            wrapper.appendChild(notice);
+            trailerWrapper.innerHTML = `
+              <img src="https://image.tmdb.org/t/p/w780/${data.backdrop_path || data.poster_path}" alt="Trailer not available" class="fallback-image">
+              <p class="trailer-notice">Trailer not available.</p>
+            `;
           }
+
+          wrapper.appendChild(trailerWrapper);
+
+          // --- DETAILS SECTION ---
           const content = document.createElement('div');
           content.className = 'details-content';
           content.innerHTML = `
@@ -393,10 +379,66 @@ async function searchonTmdb(query,pageNumber) {
           moreDetailsContaner.style.transform = "scale(1)";
           mainContainer.style.display = "none";
 
+          // --- TV SHOW: SEASONS AND EPISODES ---
+          if (data.seasons !== undefined) {
+            const seasons = data.seasons.filter(s => s.season_number !== 0);
+            const seasonTabs = document.createElement('div');
+            seasonTabs.className = 'season-tabs';
+
+            const episodeContainer = document.createElement('div');
+            episodeContainer.className = 'episodes-container';
+
+            seasons.forEach(season => {
+              const btn = document.createElement('button');
+              btn.textContent = `S${season.season_number.toString().padStart(2, '0')}`;
+              btn.className = 'season-btn';
+              btn.addEventListener('click', () => {
+                document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                loadSeason(season.season_number);
+              });
+              seasonTabs.appendChild(btn);
+            });
+
+            moreDetailsContaner.appendChild(seasonTabs);
+            moreDetailsContaner.appendChild(episodeContainer);
+
+            const latestSeason = seasons[seasons.length - 1];
+            loadSeason(latestSeason.season_number);
+
+            function loadSeason(seasonNumber) {
+              fetch(`https://api.themoviedb.org/3/tv/${id}/season/${seasonNumber}?api_key=${API_KEY}`)
+                .then(res => res.json())
+                .then(seasonData => {
+                  episodeContainer.innerHTML = `
+                    <h3 class="season-header">Season ${seasonNumber} Overview</h3>
+                    <p>${seasonData.overview || 'No season overview available.'}</p>
+                  `;
+
+                  seasonData.episodes.forEach(ep => {
+                    const epCard = document.createElement('div');
+                    epCard.className = 'episode-card';
+                    epCard.innerHTML = `
+                      <strong>S${ep.season_number.toString().padStart(2, '0')}E${ep.episode_number.toString().padStart(2, '0')} - ${ep.name}</strong>
+                      <p><em>${new Date(ep.air_date).toLocaleDateString()}</em></p>
+                      <div class="episode-inner">
+                        ${ep.still_path ? `<img src="https://image.tmdb.org/t/p/w300${ep.still_path}" alt="Episode still" class="episode-still">` : ''}
+                        <div class="episode-text">
+                          <p>${ep.overview || 'No episode overview.'}</p>
+                        </div>
+                      </div>
+                    `;
+                    episodeContainer.appendChild(epCard);
+                  });
+                });
+            }
+          }
         });
     })
-    
     .catch(error => console.error('Error fetching details:', error));
 }
-  
+
+
+
+
 
