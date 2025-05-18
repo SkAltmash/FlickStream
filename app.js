@@ -311,6 +311,11 @@ async function searchonTmdb(query,pageNumber) {
  }); 
 
  function moreDetails(category, id) {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+
   fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
     .then(response => response.json())
     .then(data => {
@@ -343,7 +348,7 @@ async function searchonTmdb(query,pageNumber) {
           const wrapper = document.createElement('div');
           wrapper.className = 'details-wrapper';
 
-          // --- TRAILER SECTION ---
+          // Trailer section
           const trailerWrapper = document.createElement('div');
           trailerWrapper.className = 'video-wrapper';
 
@@ -365,7 +370,7 @@ async function searchonTmdb(query,pageNumber) {
 
           wrapper.appendChild(trailerWrapper);
 
-          // --- DETAILS SECTION ---
+          // Details section
           const content = document.createElement('div');
           content.className = 'details-content';
           content.innerHTML = `
@@ -373,13 +378,42 @@ async function searchonTmdb(query,pageNumber) {
             <p class="movie-release">Release: ${data.release_date || data.first_air_date || 'N/A'}</p>
             <p class="movie-overview">${data.overview || 'No overview available.'}</p>
           `;
-
           wrapper.appendChild(content);
+
           moreDetailsContaner.appendChild(wrapper);
           moreDetailsContaner.style.transform = "scale(1)";
           mainContainer.style.display = "none";
 
-          // --- TV SHOW: SEASONS AND EPISODES ---
+          // Fetch cast FIRST (above episodes)
+          fetch(`https://api.themoviedb.org/3/${category}/${id}/credits?api_key=${API_KEY}`)
+            .then(res => res.json())
+            .then(castData => {
+              const castSection = document.createElement('div');
+              castSection.className = 'cast-section';
+              castSection.innerHTML = `<h3>Cast</h3>`;
+
+              const castGrid = document.createElement('div');
+              castGrid.className = 'cast-grid';
+
+              if (castData.cast && castData.cast.length > 0) {
+                castData.cast.slice(0, 12).forEach(actor => {
+                  const actorCard = document.createElement('div');
+                  actorCard.className = 'actor-card';
+                  actorCard.innerHTML = `
+                    <img src="${actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'images/no-person.png'}" alt="${actor.name}">
+                    <p><i>${actor.name}<i></p>
+                    <p>${actor.character}</p>
+                  `;
+                  castGrid.appendChild(actorCard);
+                });
+              } else {
+                castGrid.innerHTML = `<p class="no-cast">No cast information available.</p>`;
+              }
+              castSection.appendChild(castGrid);
+              moreDetailsContaner.appendChild(castSection);
+            });
+
+          // Then handle TV shows: seasons/episodes
           if (data.seasons !== undefined) {
             const seasons = data.seasons.filter(s => s.season_number !== 0);
             const seasonTabs = document.createElement('div');
@@ -392,11 +426,13 @@ async function searchonTmdb(query,pageNumber) {
               const btn = document.createElement('button');
               btn.textContent = `S${season.season_number.toString().padStart(2, '0')}`;
               btn.className = 'season-btn';
+
               btn.addEventListener('click', () => {
                 document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 loadSeason(season.season_number);
               });
+
               seasonTabs.appendChild(btn);
             });
 
@@ -414,28 +450,75 @@ async function searchonTmdb(query,pageNumber) {
                     <h3 class="season-header">Season ${seasonNumber} Overview</h3>
                     <p>${seasonData.overview || 'No season overview available.'}</p>
                   `;
-
-                  seasonData.episodes.forEach(ep => {
-                    const epCard = document.createElement('div');
-                    epCard.className = 'episode-card';
-                    epCard.innerHTML = `
-                      <strong>S${ep.season_number.toString().padStart(2, '0')}E${ep.episode_number.toString().padStart(2, '0')} - ${ep.name}</strong>
-                      <p><em>${new Date(ep.air_date).toLocaleDateString()}</em></p>
-                      <div class="episode-inner">
-                        ${ep.still_path ? `<img src="https://image.tmdb.org/t/p/w300${ep.still_path}" alt="Episode still" class="episode-still">` : ''}
-                        <div class="episode-text">
-                          <p>${ep.overview || 'No episode overview.'}</p>
-                        </div>
-                      </div>
-                    `;
-                    episodeContainer.appendChild(epCard);
+            
+                  const episodes = seasonData.episodes;
+                  const limitedEpisodes = episodes.slice(0, 3);
+                  const remainingEpisodes = episodes.slice(3);
+            
+                  const episodeList = document.createElement('div');
+                  episodeList.className = 'episode-list';
+            
+                  // Add first 3 episodes
+                  limitedEpisodes.forEach(ep => {
+                    const epCard = createEpisodeCard(ep);
+                    episodeList.appendChild(epCard);
                   });
+            
+                  // Hidden container for remaining episodes
+                  const moreList = document.createElement('div');
+                  moreList.className = 'more-episodes';
+                  moreList.style.display = 'none';
+            
+                  remainingEpisodes.forEach(ep => {
+                    const epCard = createEpisodeCard(ep);
+                    moreList.appendChild(epCard);
+                  });
+            
+                  episodeContainer.appendChild(episodeList);
+                  episodeContainer.appendChild(moreList);
+            
+                  // Add toggle button at the bottom
+                  if (remainingEpisodes.length > 0) {
+                    const toggleBtn = document.createElement('button');
+                    toggleBtn.textContent = 'Show All Episodes';
+                    toggleBtn.className = 'show-more-btn';
+            
+                    let isExpanded = false;
+            
+                    toggleBtn.addEventListener('click', () => {
+                      isExpanded = !isExpanded;
+                      moreList.style.display = isExpanded ? 'block' : 'none';
+                      toggleBtn.textContent = isExpanded ? 'Show Less Episodes' : 'Show All Episodes';
+                      
+                    });
+                    
+                    episodeContainer.appendChild(toggleBtn); // Add it at the end
+                  }
                 });
             }
+            
+            
           }
         });
     })
     .catch(error => console.error('Error fetching details:', error));
+}
+
+
+function createEpisodeCard(ep) {
+  const epCard = document.createElement('div');
+  epCard.className = 'episode-card';
+  epCard.innerHTML = `
+    <strong>S${ep.season_number.toString().padStart(2, '0')}E${ep.episode_number.toString().padStart(2, '0')} - ${ep.name}</strong>
+    <p><em>${new Date(ep.air_date).toLocaleDateString()}</em></p>
+    <div class="episode-inner">
+      ${ep.still_path ? `<img src="https://image.tmdb.org/t/p/w300${ep.still_path}" alt="Episode still" class="episode-still">` : ''}
+      <div class="episode-text">
+        <p>${ep.overview || 'No episode overview.'}</p>
+      </div>
+    </div>
+  `;
+  return epCard;
 }
 
 

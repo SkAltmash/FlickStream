@@ -302,10 +302,11 @@ form button{
 
 .fallback-image {
   width: 100%;
-  max-height: 400px;
+  max-height: 100;
   max-width: 450px;
   border-radius: 12px;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+  margin:auto;
 }
 
 .trailer-notice {
@@ -339,8 +340,16 @@ form button{
   gap: 8px;
   margin-top: 20px;
   overflow-x: auto;
-}
+  scroll-snap-type: x mandatory;
 
+}
+.season-tabs ::-webkit-scrollbar{
+  height: 8px;
+}
+.season-tabs ::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
 .season-btn {
   padding: 8px 14px;
   background: #333;
@@ -382,6 +391,66 @@ form button{
 
 .episode-text {
   flex: 1;
+}
+.show-more-btn {
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 20px auto;
+  display: block;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+.show-more-btn:hover {
+  background: black;
+  border: 1px solid #b0060f;
+
+}
+
+.show-more-btn {
+  background: #b0060f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin: 12px auto;
+  display: block;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.more-episodes {
+  margin-top: 1em;
+}
+
+.cast-section {
+  margin-top: 30px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.cast-grid {
+  display: flex;
+  gap: 16px;
+}
+
+.actor-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100px;
+  scroll-snap-align: start;
+  text-align: center;
+  color: #ddd;
+}
+  .actor-card p strong{
+    overflow: hidden;
+    max-height: 20px;
+    font-size: 20px;
+  }
+.actor-card img {
+  width: 100%;
+  border-radius: 20%;
 }
 
 
@@ -446,4 +515,8 @@ form button{
       top: 10px;
       font-size: 40px;
      }
+     .episode-still {
+      max-height: 150px;
+     }
+
 }
