@@ -399,8 +399,9 @@ async function searchonTmdb(query,pageNumber) {
                 castData.cast.slice(0, 12).forEach(actor => {
                   const actorCard = document.createElement('div');
                   actorCard.className = 'actor-card';
+
                   actorCard.innerHTML = `
-                    <img src="${actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'images/no-person.png'}" alt="${actor.name}">
+                    <img src="${actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'images/castplaceholder.jpg'}" alt="${actor.name}">
                     <p><i>${actor.name}<i></p>
                     <p>${actor.character}</p>
                   `;
