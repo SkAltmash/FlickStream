@@ -2,9 +2,8 @@ const form = document.querySelector("form");
 const mainContainer = document.querySelector(".main-container");
 const btnforSearch = document.querySelector(".btn-for-search");
 const moreDetailsContaner = document.querySelector(".more-details");
-const PROXY_URL = "/.netlify/functions/tmdb-proxy";
 
-
+const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 const BASE_URL = 'https://api.themoviedb.org/3';
 let pageNumber = 1;
 let searchTime =1
@@ -48,18 +47,14 @@ function createMovieCard(item, type) {
   const imgcart = document.createElement('div');
   imgcart.classList.add("imgcart");
 
-  const posterUrl = item.poster_path
-    ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-    : 'images/logo.png';
+  const posterUrl = item.poster_path? `https://image.tmdb.org/t/p/w500/${item.poster_path} `: 'images/logo.png';
 
- imgcart.innerHTML = `
-         <img 
+ imgcart.innerHTML = ` <img 
            src="images/lodar.webp"
            data-src="${posterUrl}" 
            class="movie-img lazy-load" 
            loading="lazy"
-         >
-       `;
+         >` ;
   const cartInfo = document.createElement('div');
   cartInfo.classList.add("cartInfo");
 
@@ -80,12 +75,11 @@ function createMovieCard(item, type) {
     ratingText = item.vote_average.toFixed(1);
   }
 
-  cartInfo.innerHTML = `
-    <h4 class="${ratingClass}">
+  cartInfo.innerHTML = ` <h4 class="${ratingClass}">
       <i class="fa-solid fa-star"></i> ${ratingText}
     </h4>
-    <h4>${type === 'movie' ? item.title : item.name}</h4>
-  `;
+    <h4>${type === 'movie' ? item.title : item.name}</h4>`
+  ;
 
   imgcart.appendChild(cartInfo);
   replaceLazyImages();
@@ -98,8 +92,7 @@ function createMovieCard(item, type) {
 
 async function getLatestMovies() {
   try {
-    const response = await fetch(`${PROXY_URL}?path=/discover/movie&sort_by=popularity.desc`)
-
+    const response = await fetch(`${BASE_URL}/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
@@ -118,8 +111,7 @@ async function getLatestMovies() {
 
 async function getLatestShow() {
   try {
-    const response = await fetch(`${PROXY_URL}?path=/discover/tv&sort_by=popularity.desc`);
-
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
@@ -138,7 +130,7 @@ async function getLatestShow() {
 
 async function getLatestShowNetflix() {
   try {
-    const response = await fetch(`${PROXY_URL}?path=/discover/tv&sort_by=popularity.desc&with_networks=213`);
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=213`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
@@ -157,8 +149,7 @@ async function getLatestShowNetflix() {
 
 async function getLatestShowAmazon() {
   try {
-    const response = await fetch(`${PROXY_URL}?path=/discover/tv&sort_by=popularity.desc&with_networks=1024`);
-
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=1024`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
@@ -177,8 +168,7 @@ async function getLatestShowAmazon() {
 
 async function getLatestShowHotstar() {
   try {
-    const response = await fetch(`${PROXY_URL}?path=/discover/tv&sort_by=popularity.desc&with_networks=3919`)
-
+    const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&with_networks=3919`);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
     const data = await response.json();
@@ -201,9 +191,10 @@ SearchResult.classList.add("SearchResult");
 
 pageNumber=1;
 async function searchonTmdb(query,pageNumber) {
+    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false;`
   
     try {
-      const response = await fetch(`${PROXY_URL}?path=/search/multi&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`);
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Network response was not ok');
         if(searchTime==1){
         mainContainer.innerHTML="";
@@ -217,20 +208,18 @@ async function searchonTmdb(query,pageNumber) {
         const imgcart = document.createElement('div');
         imgcart.classList.add("imgcart");
   
-        const posterUrl = item.poster_path
-          ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-          : 'images/logo.png';
+        const posterUrl = item.poster_path ? https://image.tmdb.org/t/p/w500/${item.poster_path} : 'images/logo.png';
         
          mainContainer.appendChild(SearchResult);
 
-         imgcart.innerHTML = `
-         <img 
+         imgcart.innerHTML = `  <img 
            src="images/lodar.webp"
            data-src="${posterUrl}" 
            class="movie-img lazy-load" 
            loading="lazy"
          >
        `;
+       
         SearchResult.appendChild(imgcart);
         replaceLazyImages();
 
@@ -257,12 +246,12 @@ async function searchonTmdb(query,pageNumber) {
           ratingText = item.vote_average.toFixed(1);
         }
       
-        cartInfo.innerHTML = `
-          <h4 class="${ratingClass}">
+        cartInfo.innerHTML = `  <h4 class="${ratingClass}">
             <i class="fa-solid fa-star"></i> ${ratingText}
           </h4>
            <h4>${title}</h4>
         `;
+        
        imgcart.append(cartInfo);
 
        imgcart.addEventListener("click",(e)=>{
@@ -316,13 +305,11 @@ async function searchonTmdb(query,pageNumber) {
 
  function moreDetails(category, id) {
 
-  fetch(`${PROXY_URL}?path=/${category}/${id}`) .then(response => response.json())
+  fetch(`https://api.themoviedb.org/3/${category}/${id}?api_key=${API_KEY}`)
+    .then(response => response.json())
     .then(data => {
       const posterSize = window.innerWidth <= 580 ? 'w300' : 'w780';
-      const scriptSrc = window.innerWidth <= 580 ? 'mobile.js' : 'desktop.js';
-      const posterPath = data.poster_path 
-        ? `https://image.tmdb.org/t/p/${posterSize}${data.poster_path}` 
-        : 'images/logo.png';
+      const posterPath = data.poster_path ?` https://image.tmdb.org/t/p/${posterSize}${data.poster_path}` : 'images/logo.png';
 
       moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, 1)), url("${posterPath}") center/cover no-repeat`;
     
@@ -339,17 +326,14 @@ async function searchonTmdb(query,pageNumber) {
         moreDetailsContaner.innerHTML = '';
       });
       moreDetailsContaner.appendChild(closeBtn);
+    
+      const script = document.createElement('script');
 
-      // Load device-specific script
-      if (!document.querySelector(`script[src="${scriptSrc}"]`)) {
-        const script = document.createElement('script');
-        script.src = scriptSrc;
-        document.head.appendChild(script);
-      }
+  
 
       // Fetch trailer
-      fetch(`${PROXY_URL}?path=/${category}/${id}/videos`)
-      .then(res => res.json())
+      fetch(`https://api.themoviedb.org/3/${category}/${id}/videos?api_key=${API_KEY}`)
+        .then(res => res.json())
         .then(videoData => {
           const youtubeTrailer = videoData.results.find(
             vid => vid.site === 'YouTube' && vid.type === 'Trailer'
@@ -361,14 +345,12 @@ async function searchonTmdb(query,pageNumber) {
           if (youtubeTrailer) {
             const trailerContainer = document.createElement('div');
             trailerContainer.className = 'video-wrapper';
-            trailerContainer.innerHTML = `
-              <iframe 
+            trailerContainer.innerHTML = ` <iframe 
                 src="https://www.youtube.com/embed/${youtubeTrailer.key}?autoplay=1&mute=0&rel=0" 
                 frameborder="0"
                 allow="autoplay; encrypted-media"
                 allowfullscreen
-              ></iframe>
-            `;
+              ></iframe>`;
             wrapper.appendChild(trailerContainer);
           } else {
             const fallbackImg = document.createElement('img');
@@ -388,8 +370,8 @@ async function searchonTmdb(query,pageNumber) {
           content.innerHTML = `
             <h2 class="movie-title">${data.name || data.title}</h2>
             <p class="movie-release">Release: ${data.release_date || data.first_air_date || 'N/A'}</p>
-            <p class="movie-overview">${data.overview || 'No overview available.'}</p>
-          `;
+            <p class="movie-overview">${data.overview || 'No overview available.'}</p>`;
+          
 
           wrapper.appendChild(content);
           moreDetailsContaner.appendChild(wrapper);
@@ -401,5 +383,3 @@ async function searchonTmdb(query,pageNumber) {
     
     .catch(error => console.error('Error fetching details:', error));
 }
-  
-
