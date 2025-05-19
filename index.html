@@ -15,11 +15,17 @@
             <a href="#"><img src="images/logo.png" alt=""> </a>
         </div>
     </nav>
-    <form>
-        <input type="text" placeholder="Search here...">
-        
-        <button><i style="color: #1e1e1e;" class="fa-solid fa-magnifying-glass"></i></button>
+    <form id="searchForm">
+      <div>
+        <input type="text" id="searchInput" class="searchInput" placeholder="Search here..." />
+        <button type="submit" id="searchBtn">
+          <i id="searchIcon" style="color: #fff;" class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+      <div id="suggestions" class="suggestions-box"></div>
     </form>
+    
+
     <section class="section-main-contaner">
     <div class="main-container">
     </div>

@@ -726,3 +726,57 @@ function scheduleLazyLoad() {
 }
 
 
+const searchInput = document.querySelector(".searchInput");
+const suggestionsBox = document.getElementById("suggestions");
+
+let debounceTimeout;
+
+
+// Add this ONCE outside the input event
+searchInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    suggestionsBox.innerHTML = "";   // Clear suggestions
+    suggestionsBox.classList.remove("Active"); // Hide suggestions box
+  }
+});
+
+searchInput.addEventListener("input", () => {
+  clearTimeout(debounceTimeout);
+
+  debounceTimeout = setTimeout(async () => {
+    const query = searchInput.value.trim();
+    if (!query) {
+      suggestionsBox.innerHTML = "";
+      return;
+    }
+
+    const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`);
+    const data = await response.json();
+
+    suggestionsBox.innerHTML = data.results
+      .slice(0, 9)
+      .map(item => {
+        const title = item.title || item.name || "Untitled";
+        const posterUrl = item.poster_path
+          ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+          : 'images/logo.png';
+
+        return `
+          <div class="suggestion-item" onclick="selectMovie(${item.id})">
+            <img src="${posterUrl}" alt="${title}">
+            <span>${title}</span>
+          </div>
+        `;
+      })
+      .join(""); // Make sure to join the array into a string
+
+    suggestionsBox.classList.add("Active");
+  }, 300); // Debounce delay: 300ms
+
+  suggestionsBox.classList.remove("Active");
+});
+
+function selectMovie(movieId) {
+  console.log("aa")
+}
+

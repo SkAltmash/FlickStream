@@ -27,8 +27,17 @@ form{
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 20px
+    margin-top: 20px;
+    flex-direction: column;
+    position: relative;
+
 }
+form div{
+  display: flex;
+  width: 80%;
+  max-width: 900px;
+}
+
 form input{
     padding: 0;
     margin: 0;
@@ -36,15 +45,16 @@ form input{
     border: none;
     height: 35px;
     padding: 10px;
-    width: 50%;
+    width: 100%;
     border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
     font-size: 1.1rem;
     padding: 10px 16px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     background-color: #1e1e1e;
     border: 1px solid #e63946;
     color: #eee;
+    border-bottom: none;
+    border-right: none;
 }
 form input::placeholder{
   color: #ccc;
@@ -54,16 +64,61 @@ form button{
     padding: 0;
     margin: 0;
     outline: none;
-    border: none;
     height: 35px;
     width: 30px;
     border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-    font-size: 1.5rem;
-    background-color: #e50914;
+    border: 1px solid #e63946;
+    border-left: none;
+    font-size: 1.4rem;
     color: white;
-    border: none;
     cursor: pointer;
+    border-bottom: none;
+    background: #1e1e1e;
+    padding-right: 10px;
+}
+
+
+.suggestions-box {
+  position: absolute;
+  top: 100%; /* still appears just below the input */
+  left: 50%;
+  transform: translateX(-50%); /* centers it horizontally */
+  width: 80%;
+  max-width: 900px;
+  background-color: #1e1e1e;
+  z-index: 9999;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border: 1px solid #e63946;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top: none;
+  min-height: 5px;
+}
+
+
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+
+.suggestion-item img {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.suggestion-item span {
+  color: #fff;
+  font-size: 14px;
 }
 
 /* Container for each section */
@@ -535,6 +590,10 @@ form button{
 {
   height: 8px;
 }
+.suggestions-box::-webkit-scrollbar{
+  height: 4px;
+}
+
 .latestMovies::-webkit-scrollbar-thumb,
 .TrendingOnNetflix::-webkit-scrollbar-thumb,
 .TrendingOnAmazon::-webkit-scrollbar-thumb,
@@ -542,7 +601,8 @@ form button{
 .latestShow::-webkit-scrollbar-thumb,
 .cast-section::-webkit-scrollbar-thumb,
 .season-tabs::-webkit-scrollbar-thumb,
-.actorInfoContainer::-webkit-scrollbar-thumb
+.actorInfoContainer::-webkit-scrollbar-thumb,
+.suggestions-box::-webkit-scrollbar-thumb
 {
   background: #888;
   border-radius: 4px;
