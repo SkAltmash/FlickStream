@@ -132,7 +132,7 @@ form button{
   text-shadow: 0 0 5px rgba(230, 57, 70, 0.5);
 
 }
-.SearchResult{
+.SearchResult,.relatedMovies{
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -490,7 +490,6 @@ form button{
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   gap: 12px;
-  margin-left: 10px;
 }
 .personDetails h3{
   margin-top: 10px;
@@ -517,7 +516,13 @@ form button{
   object-fit: cover;
   display: block;
 }
-
+.movie-img {
+  opacity: 0;
+  transition: opacity 0.4s ease-in;
+}
+.movie-img.loaded {
+  opacity: 1;
+}
 /* Scrollbar (optional styling) */
 .latestMovies::-webkit-scrollbar,
 .TrendingOnNetflix::-webkit-scrollbar,
@@ -549,16 +554,16 @@ form button{
    .logo{
     height: 70px;
    }
-   .SearchResult{
-    gap:10px;
+   .SearchResult,.movieCard{
+    gap:15pxx;
    }
    .logo img{
     height: 70px;
     width: 80px;
    }
    .imgcart ,.movieCard{
-    height: 350px;
-    width: 170px;
+    height: 320px;
+    width: 150px;
    }   
     .imgcart img ,.movieCard img{
       height: 60%;
