@@ -98,6 +98,8 @@ form button{
   cursor: pointer;
   background-color: #1e1e1e;
   border-radius: 10px;
+  transition: 100ms ease-in-out transform;
+
 }
 .imgcart:hover {
   transform: scale(1.05);
@@ -121,26 +123,6 @@ form button{
   height:70px;
   overflow: hidden;
 }
-
-
-
-/* Scrollbar (optional styling) */
-.latestMovies::-webkit-scrollbar,
-.TrendingOnNetflix::-webkit-scrollbar,
-.TrendingOnAmazon::-webkit-scrollbar,
-.TrendingOnHotstar::-webkit-scrollbar,
-.latestShow::-webkit-scrollbar {
-  height: 8px;
-}
-.latestMovies::-webkit-scrollbar-thumb,
-.TrendingOnNetflix::-webkit-scrollbar-thumb,
-.TrendingOnAmazon::-webkit-scrollbar-thumb,
-.TrendingOnHotstar::-webkit-scrollbar-thumb,
-.latestShow::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
 .main-container h2{
   color: #e63946;
   padding-top: 20px;
@@ -244,7 +226,7 @@ form button{
 .btn-for-search,.btn-for-lates{
   display:none;
 }
-.more-details {
+.more-details,.personDetails {
   padding: 20px;
   color: #fff;
   overflow-y: auto;
@@ -252,10 +234,12 @@ form button{
   top: 0;
   left: 0;
   right: 0;
+  transition: 100ms ease-in-out transform;
+
 }
 
 .close-btn {
-  position: absolute;
+  position: fixed;
   top: 10px;
   right: 25px;
   font-size: 60px;
@@ -293,7 +277,6 @@ form button{
 .fallback-image {
   width: 100%;
   max-height: 100;
-  max-width: 450px;
   border-radius: 12px;
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
   margin:auto;
@@ -331,15 +314,10 @@ form button{
   margin-top: 20px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  padding-bottom: 20px;
 
 }
-.season-tabs ::-webkit-scrollbar{
-  height: 8px;
-}
-.season-tabs ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
+
 .season-btn {
   padding: 8px 14px;
   background: #333;
@@ -417,6 +395,7 @@ form button{
   margin-top: 30px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  margin-bottom: 50px;
 }
 
 .cast-grid {
@@ -431,6 +410,11 @@ form button{
   scroll-snap-align: start;
   text-align: center;
   color: #ddd;
+  transition: 100ms ease-in-out transform;
+
+}
+.actor-card:hover{
+  transform: scale(1.1);
 }
   .actor-card p strong{
     overflow: hidden;
@@ -469,7 +453,95 @@ form button{
 .footer-links a:hover {
   text-decoration: underline;
 }
+.backToDetles{
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #eee;
+  text-align: end;
+  position: fixed;
+  right: 40px;
+  font-size: 40px;
+}
+.personDetails{
+ transform: scale(0);
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ background-color: black;
+ transition: 100ms ease-in-out transform;
 
+}
+.ActorProfilePictor{
+  text-align: center;
+  background-color: #1e1e1e;
+  border-radius: 20px;
+}
+.ActorProfilePictor img{
+ max-height: 300px;
+ width: 200px;
+ object-fit: cover;
+ border-radius: 20px;
+}
+.actorInfoContainer{
+  padding-top: 20px;
+  padding-bottom: 40px;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
+  margin-left: 20px;
+}
+.personDetails h3{
+  margin-top: 10px;
+  margin-left: 20px;
+}
+.movieCard{
+  position: relative;
+  flex: 0 0 auto;
+  width: 280px;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  background-color: #1e1e1e;
+  border-radius: 10px;
+}
+.movieCard:hover {
+  transform: scale(1.05);
+}
+
+ .movieCard img{
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Scrollbar (optional styling) */
+.latestMovies::-webkit-scrollbar,
+.TrendingOnNetflix::-webkit-scrollbar,
+.TrendingOnAmazon::-webkit-scrollbar,
+.TrendingOnHotstar::-webkit-scrollbar,
+.latestShow::-webkit-scrollbar,
+.cast-section::-webkit-scrollbar,
+.season-tabs::-webkit-scrollbar,
+.actorInfoContainer::-webkit-scrollbar
+{
+  height: 8px;
+}
+.latestMovies::-webkit-scrollbar-thumb,
+.TrendingOnNetflix::-webkit-scrollbar-thumb,
+.TrendingOnAmazon::-webkit-scrollbar-thumb,
+.TrendingOnHotstar::-webkit-scrollbar-thumb,
+.latestShow::-webkit-scrollbar-thumb,
+.cast-section::-webkit-scrollbar-thumb,
+.season-tabs::-webkit-scrollbar-thumb,
+.actorInfoContainer::-webkit-scrollbar-thumb
+{
+  background: #888;
+  border-radius: 4px;
+}
  @media (max-width: 580px) {
    nav{
     height:70px;
@@ -484,11 +556,11 @@ form button{
     height: 70px;
     width: 80px;
    }
-   .imgcart{
+   .imgcart ,.movieCard{
     height: 350px;
     width: 170px;
    }   
-    .imgcart img{
+    .imgcart img ,.movieCard img{
       height: 60%;
     }
 
@@ -496,9 +568,7 @@ form button{
       margin-top: 40px;
 
      }
-     .fallback-image{
-      max-width: 270px;
-     }
+   
      .close-btn {
       right: 20px;
       top: 10px;
@@ -508,5 +578,7 @@ form button{
      .episode-inner {
       flex-direction: column;
      }
+  
+
 
 }

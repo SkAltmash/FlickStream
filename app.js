@@ -20,10 +20,10 @@ form.addEventListener('submit',(e)=>{
 lodeHomePage();
 function lodeHomePage(){
    getLatestMovies();
-   getLatestShow();
-   getLatestShowNetflix();
-   getLatestShowAmazon();
-   getLatestShowHotstar();
+  // getLatestShow();
+  // getLatestShowNetflix();
+ //  getLatestShowAmazon();
+  // getLatestShowHotstar();
 }
 function createSection(titleText, containerClass) {
   const sectionWrapper = document.createElement("section");
@@ -326,6 +326,8 @@ async function searchonTmdb(query,pageNumber) {
 
       moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, 1)), url("${posterPath}") center/cover no-repeat`;
       moreDetailsContaner.innerHTML = '';
+      const personDetails = document.querySelector(".personDetails");
+      personDetails.style.transform = "scale(0)";
 
       const closeBtn = document.createElement('button');
       closeBtn.innerHTML = '&times;';
@@ -401,16 +403,21 @@ async function searchonTmdb(query,pageNumber) {
                   actorCard.className = 'actor-card';
 
                   actorCard.innerHTML = `
-                    <img src="${actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'images/castplaceholder.jpg'}" alt="${actor.name}">
+                    <img src="${actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'images/castplaceholder.png'}" alt="${actor.name}">
                     <p><i>${actor.name}<i></p>
                     <p>${actor.character}</p>
                   `;
                   castGrid.appendChild(actorCard);
+                  actorCard.addEventListener("click",(e)=>{
+                    fetchPersonDetails(actor.id,actor);
+                   });
                 });
-              } else {
+              }
+               else {
                 castGrid.innerHTML = `<p class="no-cast">No cast information available.</p>`;
               }
               castSection.appendChild(castGrid);
+
               moreDetailsContaner.appendChild(castSection);
             });
 
@@ -520,6 +527,83 @@ function createEpisodeCard(ep) {
     </div>
   `;
   return epCard;
+}
+function fetchPersonDetails(personId, actor) {
+  moreDetailsContaner.style.transform = "scale(0)";
+
+  // First: Fetch biography
+  fetch(`https://api.themoviedb.org/3/person/${personId}?api_key=${API_KEY}`)
+    .then(res => res.json())
+    .then(actorDetails => {
+      const bio = shortenBio(actorDetails.biography);
+
+      // Second: Fetch recent credits
+      fetch(`https://api.themoviedb.org/3/person/${personId}/combined_credits?api_key=${API_KEY}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log(data, actor);
+
+          const personDetails = document.querySelector(".personDetails");
+          personDetails.innerHTML = ""; // Clear previous data
+          personDetails.style.transform = "scale(1)";
+
+          // Close button
+          const closeBtn = document.createElement('button');
+          closeBtn.innerHTML = '&times;';
+          closeBtn.classList.add("close-btn");
+          closeBtn.addEventListener('click', () => {
+            moreDetailsContaner.style.transform = "scale(1)";
+            personDetails.innerHTML = "";
+            personDetails.style.transform = "scale(0)";
+          });
+          personDetails.appendChild(closeBtn);
+
+          // Profile Section with Bio
+          const ActorProfilePictor = document.createElement('div');
+          ActorProfilePictor.classList.add("ActorProfilePictor");
+          ActorProfilePictor.innerHTML = `
+            <img src="${actor.profile_path ? 'https://image.tmdb.org/t/p/w185' + actor.profile_path : 'images/castplaceholder.png'}" alt="${actor.name}">
+            <h2>${actor.name}</h2>
+            <p style="max-width: 500px; margin: auto;">${bio}</p>
+          `;
+          personDetails.appendChild(ActorProfilePictor);
+          const lable = document.createElement("h3");
+          lable.innerText="Known For";
+          personDetails.appendChild(lable);
+          // Recent Works Grid
+  
+          const actorInfoContainer = document.createElement('div');
+          actorInfoContainer.classList.add("actorInfoContainer");
+          
+           
+          const sortedWorks = data.cast
+            .sort((a, b) => new Date(b.release_date || b.first_air_date) - new Date(a.release_date || a.first_air_date))
+            .slice(0, ); // Recent 6 works
+
+          sortedWorks.forEach(movie => {
+            const card = document.createElement('div');
+            card.classList.add("movieCard");
+            card.innerHTML = `
+              <img src="${movie.poster_path ? 'https://image.tmdb.org/t/p/w185' + movie.poster_path : 'images/placeholder.png'}" alt="${movie.title || movie.name}">
+              <p><strong>${movie.title || movie.name}</strong></p>
+              <p style="font-size: 0.9em; color: gray;">as ${movie.character || 'N/A'}</p>
+            `;
+            actorInfoContainer.appendChild(card);
+            card.addEventListener("click", () => {
+              moreDetails(movie.media_type,movie.id);
+            });
+          });
+
+          personDetails.appendChild(actorInfoContainer);
+        });
+    });
+}
+
+// Helper: Trim bio to 2–3 sentences
+function shortenBio(bio, sentenceCount = 2) {
+  if (!bio) return "Biography not available.";
+  const sentences = bio.split('.').filter(Boolean);
+  return sentences.slice(0, sentenceCount).join('. ') + (sentences.length > sentenceCount ? '...' : '.');
 }
 
 
