@@ -15,7 +15,7 @@ form.addEventListener('submit',(e)=>{
     searchTime=1;
     pageNumber=1;
     
-    searchonTmdb(query,pageNumber);
+ searchonTmdb(query,pageNumber);
 
 })
 lodeHomePage();
@@ -724,59 +724,119 @@ function scheduleLazyLoad() {
     });
   }
 }
-
-
 const searchInput = document.querySelector(".searchInput");
 const suggestionsBox = document.getElementById("suggestions");
+const searchForm = document.getElementById("searchForm");
+const searchIcon = document.getElementById("searchIcon");
 
 let debounceTimeout;
 
-
-// Add this ONCE outside the input event
+// Handle Enter key: hide suggestions
 searchInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
-    suggestionsBox.innerHTML = "";   // Clear suggestions
-    suggestionsBox.classList.remove("Active"); // Hide suggestions box
+    suggestionsBox.innerHTML = "";
+    suggestionsBox.classList.remove("Active");
   }
 });
 
-searchInput.addEventListener("input", () => {
-  clearTimeout(debounceTimeout);
-
-  debounceTimeout = setTimeout(async () => {
-    const query = searchInput.value.trim();
-    if (!query) {
-      suggestionsBox.innerHTML = "";
-      return;
-    }
-
-    const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`);
-    const data = await response.json();
-
-    suggestionsBox.innerHTML = data.results
-      .slice(0, 9)
-      .map(item => {
-        const title = item.title || item.name || "Untitled";
-        const posterUrl = item.poster_path
-          ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
-          : 'images/logo.png';
-
-        return `
-          <div class="suggestion-item" onclick="selectMovie(${item.id})">
-            <img src="${posterUrl}" alt="${title}">
-            <span>${title}</span>
-          </div>
-        `;
-      })
-      .join(""); // Make sure to join the array into a string
-
-    suggestionsBox.classList.add("Active");
-  }, 300); // Debounce delay: 300ms
-
-  suggestionsBox.classList.remove("Active");
+// Icon click to clear input
+searchIcon.addEventListener("click", () => {
+  if (searchIcon.classList.contains("fa-xmark")) {
+    searchInput.value = "";
+    suggestionsBox.innerHTML = "";
+    searchIcon.classList.replace("fa-xmark", "fa-magnifying-glass");
+    searchInput.focus();
+  }
 });
 
-function selectMovie(movieId) {
-  console.log("aa")
-}
+// Handle input suggestions and icon toggle
+searchInput.addEventListener("input", () => {
+  clearTimeout(debounceTimeout);
+  const query = searchInput.value.trim();
 
+  // Toggle icon
+  if (query) {
+    searchIcon.classList.replace("fa-magnifying-glass", "fa-xmark");
+  } else {
+    searchIcon.classList.replace("fa-xmark", "fa-magnifying-glass");
+    suggestionsBox.innerHTML = "";
+    suggestionsBox.classList.remove("Active");
+    return;
+  }
+
+  debounceTimeout = setTimeout(async () => {
+    try {
+      const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false}`);
+      const data = await response.json();
+
+      if (!data.results || data.results.length === 0) {
+        suggestionsBox.innerHTML = "<div class='no-results'>No results found</div>";
+        suggestionsBox.classList.add("Active");
+        return;
+      }
+
+      suggestionsBox.innerHTML = data.results
+        .filter(item => item.media_type !== "person") // Ignore people
+        .slice(0, 6)
+        .map(item => {
+          const title = item.title || item.name || "Untitled";
+          const poster = item.poster_path
+            ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+            : "https://via.placeholder.com/92x138?text=No+Image";
+          return `
+            <div class="suggestion-item" data-id="${item.id}" data-type="${item.media_type}">
+              <img src="${poster}" alt="${title}">
+              <span>${title}</span>
+            </div>
+          `;
+        }).join("");
+
+      suggestionsBox.classList.add("Active");
+    } catch (err) {
+      console.error("Suggestion fetch error:", err);
+    }
+  }, 300);
+});
+
+// Click handler for suggestions
+suggestionsBox.addEventListener("click", (event) => {
+  const item = event.target.closest(".suggestion-item");
+  if (item) {
+    const movieId = item.dataset.id;
+    const mediaType = item.dataset.type;
+    suggestionsBox.innerHTML = "";
+    searchInput.innerHTML="";
+    suggestionsBox.classList.remove("Active");
+    selectMovie(movieId, mediaType); // Pass both ID and type
+  }
+});
+
+// Handle form submit
+searchForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const query = searchInput.value.trim();
+
+  if (searchIcon.classList.contains("fa-xmark") && !query) {
+    searchInput.value = "";
+    suggestionsBox.innerHTML = "";
+    
+    searchIcon.classList.replace("fa-xmark", "fa-magnifying-glass");
+    return;
+  }
+
+  if (query) {
+    try {
+      const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false}`);
+      const data = await response.json();
+      console.log("Main search submit:", data);
+      // TODO: render full search result list
+    } catch (err) {
+      console.error("Main search fetch error:", err);
+    }
+  }
+});
+function selectMovie(id, mediaType) {
+  console.log(`Selected ${mediaType} with ID ${id}`);
+  moreDetails(mediaType,id);
+ 
+}
