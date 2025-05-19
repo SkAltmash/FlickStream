@@ -490,7 +490,7 @@ form button{
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   gap: 12px;
-  margin-left: 20px;
+  margin-left: 10px;
 }
 .personDetails h3{
   margin-top: 10px;

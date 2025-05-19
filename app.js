@@ -20,10 +20,10 @@ form.addEventListener('submit',(e)=>{
 lodeHomePage();
 function lodeHomePage(){
    getLatestMovies();
-  // getLatestShow();
-  // getLatestShowNetflix();
- //  getLatestShowAmazon();
-  // getLatestShowHotstar();
+   getLatestShow();
+   getLatestShowNetflix();
+   getLatestShowAmazon();
+   getLatestShowHotstar();
 }
 function createSection(titleText, containerClass) {
   const sectionWrapper = document.createElement("section");
@@ -584,7 +584,7 @@ function fetchPersonDetails(personId, actor) {
             const card = document.createElement('div');
             card.classList.add("movieCard");
             card.innerHTML = `
-              <img src="${movie.poster_path ? 'https://image.tmdb.org/t/p/w185' + movie.poster_path : 'images/placeholder.png'}" alt="${movie.title || movie.name}">
+              <img src="${movie.poster_path ? 'https://image.tmdb.org/t/p/w500' + movie.poster_path : 'images/placeholder.png'}" alt="${movie.title || movie.name}">
               <p><strong>${movie.title || movie.name}</strong></p>
               <p style="font-size: 0.9em; color: gray;">as ${movie.character || 'N/A'}</p>
             `;
