@@ -886,7 +886,7 @@ suggestionsBox.addEventListener("click", (event) => {
     suggestionsBox.innerHTML = "";
     searchInput.value = "";
     suggestionsBox.classList.remove("Active");
-    selectMovie(movieId, mediaType,data);
+    selectMovie(movieId, mediaType,item);
   }
 });
 
