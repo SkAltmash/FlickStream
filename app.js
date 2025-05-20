@@ -779,7 +779,6 @@ searchInput.addEventListener("keydown", (event) => {
   }
 });
 
-// Icon click to clear input
 searchIcon.addEventListener("click", () => {
   if (searchIcon.classList.contains("fa-xmark")) {
     searchInput.value = "";
