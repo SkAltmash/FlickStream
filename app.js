@@ -2,6 +2,10 @@ const form = document.querySelector("form");
 const mainContainer = document.querySelector(".main-container");
 const btnforSearch = document.querySelector(".btn-for-search");
 const moreDetailsContaner = document.querySelector(".more-details");
+const searchInput = document.querySelector(".searchInput");
+const suggestionsBox = document.getElementById("suggestions");
+const searchForm = document.getElementById("searchForm");
+const searchIcon = document.getElementById("searchIcon");
 
 
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
@@ -196,87 +200,129 @@ const SearchResult = document.createElement('div');
 SearchResult.classList.add("SearchResult");
 
 pageNumber=1;
-async function searchonTmdb(query,pageNumber) {
-    const url = `https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`;
-  
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
-        if(searchTime==1){
-        mainContainer.innerHTML="";
-        SearchResult.innerHTML="";
-        }
-        searchTime++;
-        const data = await response.json();
-        data.results.forEach(item => {
-        if (item.media_type === 'person') return
-  
-        const imgcart = document.createElement('div');
-        imgcart.classList.add("imgcart");
-  
-        const posterUrl = item.poster_path
-          ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-          : 'images/logo.png';
-        
-         mainContainer.appendChild(SearchResult);
+async function searchonTmdb(query, pageNumber) {
+  const selectedType = document.getElementById("searchType").value;
 
-         imgcart.innerHTML = `
-         <img 
-           src="images/lodar.webp"
-           data-src="${posterUrl}" 
-           class="movie-img lazy-load" 
-           loading="lazy"
-         >
-       `;
-        SearchResult.appendChild(imgcart);
-        scheduleLazyLoad();
+  suggestionsBox.classList.remove("Active");
+  searchIcon.classList.replace("fa-magnifying-glass", "fa-xmark");
 
-        const cartInfo = document.createElement('div');
-        cartInfo.classList.add("cartInfo");
-  
-        const title = item.media_type === 'movie' ? item.title : item.name;
-        const vote = item.vote_average || 'N/A';
-      
-        let ratingClass = '';
-        let ratingText = '';
-        
-        if (item.vote_average === null || item.vote_average === 0) {
-          ratingClass = 'rating-no';   
-          ratingText = 'N/A';           
-        } else if (item.vote_average >= 7) {
-          ratingClass = 'rating-high';
-          ratingText = item.vote_average.toFixed(1);
-        } else if (item.vote_average >= 5) {
-          ratingClass = 'rating-mid';
-          ratingText = item.vote_average.toFixed(1);
-        } else {
-          ratingClass = 'rating-low';
-          ratingText = item.vote_average.toFixed(1);
-        }
-      
-        cartInfo.innerHTML = `
-          <h4 class="${ratingClass}">
-            <i class="fa-solid fa-star"></i> ${ratingText}
-          </h4>
-           <h4>${title}</h4>
-        `;
-       imgcart.append(cartInfo);
-
-       imgcart.addEventListener("click",(e)=>{
-        moreDetails(item.media_type,item.id);
-       });
-
-      });
-      if(data.page<data.total_pages)
-      btnforSearch.style.display="flex";
-      else
-      btnforSearch.style.display="none";
-    
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
+  let endpoint = selectedType;
+  if (selectedType === "hollywood" || selectedType === "bollywood") {
+    endpoint = "movie";
   }
- 
+
+  const url = `https://api.themoviedb.org/3/search/${endpoint}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    if (searchTime == 1) {
+      mainContainer.innerHTML = "";
+      SearchResult.innerHTML = "";
+    }
+    searchTime++;
+
+    const data = await response.json();
+    let results = data.results;
+
+    // Filter by language for bollywood/hollywood
+    if (selectedType === "hollywood") {
+      results = results.filter(item => item.original_language === "en");
+    } else if (selectedType === "bollywood") {
+      results = results.filter(item => item.original_language === "hi");
+    }
+
+    results.forEach(item => {
+      const mediaType = item.media_type || selectedType;
+      if (mediaType !== "movie" && mediaType !== "tv" && mediaType !== "person") return;
+
+      const imgcart = document.createElement('div');
+      imgcart.classList.add("imgcart");
+
+      const imageUrl =
+        mediaType === "person"
+          ? (item.profile_path ? `https://image.tmdb.org/t/p/w500/${item.profile_path}` : 'images/castplaceholder.png')
+          : (item.poster_path ? `https://image.tmdb.org/t/p/w500/${item.poster_path}` : 'images/castplaceholder.png');
+
+      imgcart.innerHTML = `
+        <img 
+          src="images/lodar.webp"
+          data-src="${imageUrl}" 
+          class="movie-img lazy-load" 
+          loading="lazy"
+        >
+      `;
+
+      mainContainer.appendChild(SearchResult);
+      SearchResult.appendChild(imgcart);
+      scheduleLazyLoad();
+
+      const cartInfo = document.createElement('div');
+      cartInfo.classList.add("cartInfo");
+     
+      const title = mediaType === "person" ? item.name : (item.title || item.name);
+      const vote = mediaType === "person" ? null : item.vote_average;
+
+      let ratingClass = '';
+      let ratingText = '';
+
+      if (vote === null || vote === 0 || mediaType === "person") {
+        ratingClass = 'rating-no';
+        ratingText = 'N/A';
+      } else if (vote >= 7) {
+        ratingClass = 'rating-high';
+        ratingText = vote.toFixed(1);
+      } else if (vote >= 5) {
+        ratingClass = 'rating-mid';
+        ratingText = vote.toFixed(1);
+      } else {
+        ratingClass = 'rating-low';
+        ratingText = vote.toFixed(1);
+      }
+
+      cartInfo.innerHTML = `
+        <h4 class="${ratingClass}">
+          <i class="fa-solid fa-star"></i> ${ratingText}
+        </h4>
+        <h4>${title}</h4>
+      `;
+      imgcart.append(cartInfo);
+      if(mediaType != "person"){
+      imgcart.addEventListener("click", () => {
+        moreDetails(mediaType, item.id);
+      });
+      }
+      else
+      imgcart.addEventListener("click", () => {
+        fetchPersonDetails(item.id,item);
+            });
+   
+      
+    
+      
+      
+    });
+
+    if (data.page < data.total_pages) {
+      btnforSearch.style.display = "flex";
+    } else {
+      btnforSearch.style.display = "none";
+    }
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+document.getElementById("searchType").addEventListener("change", () => {
+  const query = searchInput.value.trim();
+  if (query) {
+    searchTime = 1;
+    searchonTmdb(query, 1);
+  }
+});
+
  function loadMoreREsultSearch() {
     searchonTmdb(query,++pageNumber)
  }
@@ -301,7 +347,10 @@ async function searchonTmdb(query,pageNumber) {
  async function moreDetails(category, id) {
   try {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
+    searchInput.value = "";
+  suggestionsBox.innerHTML = "";
+  searchIcon.classList.replace("fa-xmark", "fa-magnifying-glass");
+  suggestionsBox.classList.remove("Active");
     moreDetailsContaner.innerHTML = '';
     mainContainer.style.display = "none";
   
@@ -513,7 +562,7 @@ function createEpisodeCard(ep) {
   `;
   return epCard;
 }
-function fetchPersonDetails(personId, actor) {
+function fetchPersonDetails(personId,actor) {
   moreDetailsContaner.style.transform = "scale(0)";
 
   // First: Fetch biography
@@ -521,7 +570,7 @@ function fetchPersonDetails(personId, actor) {
     .then(res => res.json())
     .then(actorDetails => {
       const bio = shortenBio(actorDetails.biography);
-
+       console.log(personId,actor);
       // Second: Fetch recent credits
       fetch(`https://api.themoviedb.org/3/person/${personId}/combined_credits?api_key=${API_KEY}`)
         .then(res => res.json())
@@ -592,6 +641,7 @@ function shortenBio(bio, sentenceCount = 2) {
 
 
 function fetchRelatedMovies(movieId, type) {
+
   const endpoint = type === "movie"
     ? `movie/${movieId}/similar`
     : `tv/${movieId}/similar`;
@@ -724,12 +774,10 @@ function scheduleLazyLoad() {
     });
   }
 }
-const searchInput = document.querySelector(".searchInput");
-const suggestionsBox = document.getElementById("suggestions");
-const searchForm = document.getElementById("searchForm");
-const searchIcon = document.getElementById("searchIcon");
-
 let debounceTimeout;
+
+// Get dropdown
+const searchTypeSelect = document.getElementById("searchType");
 
 // Handle Enter key: hide suggestions
 searchInput.addEventListener("keydown", (event) => {
@@ -749,12 +797,12 @@ searchIcon.addEventListener("click", () => {
   }
 });
 
-// Handle input suggestions and icon toggle
+// Handle input for suggestions and icon toggle
 searchInput.addEventListener("input", () => {
   clearTimeout(debounceTimeout);
   const query = searchInput.value.trim();
+  const selectedType = searchTypeSelect.value;
 
-  // Toggle icon
   if (query) {
     searchIcon.classList.replace("fa-magnifying-glass", "fa-xmark");
   } else {
@@ -765,78 +813,109 @@ searchInput.addEventListener("input", () => {
   }
 
   debounceTimeout = setTimeout(async () => {
+    let endpoint = selectedType;
+
+    // Use `movie` endpoint for hollywood/bollywood
+    if (selectedType === "hollywood" || selectedType === "bollywood") {
+      endpoint = "movie";
+    }
+
     try {
-      const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false}`);
+      const response = await fetch(
+        `https://api.themoviedb.org/3/search/${endpoint}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=1&include_adult=false`
+      );
       const data = await response.json();
 
-      if (!data.results || data.results.length === 0) {
+      let results = data.results || [];
+
+      // Filter by language if needed
+      if (selectedType === "hollywood") {
+        results = results.filter(item => item.original_language === "en");
+      } else if (selectedType === "bollywood") {
+        results = results.filter(item => item.original_language === "hi");
+      }
+
+      if (results.length === 0) {
         suggestionsBox.innerHTML = "<div class='no-results'>No results found</div>";
         suggestionsBox.classList.add("Active");
         return;
       }
 
-      suggestionsBox.innerHTML = data.results
-        .filter(item => item.media_type !== "person") // Ignore people
-        .slice(0, 6)
-        .map(item => {
-          const title = item.title || item.name || "Untitled";
-          const poster = item.poster_path
+      suggestionsBox.innerHTML = results
+      .slice(0, 6)
+      .map(item => {
+        const mediaType = item.media_type || selectedType;
+    
+        let title, image;
+        if (mediaType === "person") {
+          title = item.name;
+          image = item.profile_path
+            ? `https://image.tmdb.org/t/p/w92${item.profile_path}`
+            : "images/castplaceholder.png";
+        } else {
+          title = item.title || item.name || "Untitled";
+          image = item.poster_path
             ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
-            : "https://via.placeholder.com/92x138?text=No+Image";
-          return `
-            <div class="suggestion-item" data-id="${item.id}" data-type="${item.media_type}">
-              <img src="${poster}" alt="${title}">
-              <span>${title}</span>
-            </div>
-          `;
-        }).join("");
+            : "images/castplaceholder.png";
+
+        }
+    
+        return `
+          <div class="suggestion-item" data-id="${item.id}" data-type="${mediaType}">
+            <img src="${image}" alt="${title}">
+            <span>${title}</span>
+          </div>
+        `;
+      }).join("");
+    
 
       suggestionsBox.classList.add("Active");
+
     } catch (err) {
       console.error("Suggestion fetch error:", err);
     }
   }, 300);
 });
 
-// Click handler for suggestions
+// Handle clicking a suggestion
 suggestionsBox.addEventListener("click", (event) => {
   const item = event.target.closest(".suggestion-item");
   if (item) {
     const movieId = item.dataset.id;
     const mediaType = item.dataset.type;
     suggestionsBox.innerHTML = "";
-    searchInput.innerHTML="";
+    searchInput.value = "";
     suggestionsBox.classList.remove("Active");
-    selectMovie(movieId, mediaType); // Pass both ID and type
+    selectMovie(movieId, mediaType,data);
   }
 });
 
-// Handle form submit
+// Handle form submit (search button or Enter)
 searchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const query = searchInput.value.trim();
+  const selectedType = searchTypeSelect.value;
 
   if (searchIcon.classList.contains("fa-xmark") && !query) {
     searchInput.value = "";
     suggestionsBox.innerHTML = "";
-    
     searchIcon.classList.replace("fa-xmark", "fa-magnifying-glass");
     return;
   }
 
   if (query) {
-    try {
-      const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false}`);
-      const data = await response.json();
-      console.log("Main search submit:", data);
-      // TODO: render full search result list
-    } catch (err) {
-      console.error("Main search fetch error:", err);
-    }
+    searchTime = 1;
+    await searchonTmdb(query, 1);  // use updated function
   }
 });
-function selectMovie(id, mediaType) {
-  console.log(`Selected ${mediaType} with ID ${id}`);
-  moreDetails(mediaType,id);
+
+// Handle selection of a suggestion
+function selectMovie(id, mediaType,data) {
  
+  if(mediaType != "person"){
+    moreDetails(mediaType, id);
+  }
+    else
+   fetchPersonDetails(id,data);
+    
 }
