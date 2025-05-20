@@ -18,7 +18,7 @@ form.addEventListener('submit',(e)=>{
     query=form.querySelector('input').value;
     searchTime=1;
     pageNumber=1;
-    
+    suggestionsBox.classList.remove("Active");
  searchonTmdb(query,pageNumber);
 
 })
@@ -207,9 +207,7 @@ async function searchonTmdb(query, pageNumber) {
   searchIcon.classList.replace("fa-magnifying-glass", "fa-xmark");
 
   let endpoint = selectedType;
-  if (selectedType === "hollywood" || selectedType === "bollywood") {
-    endpoint = "movie";
-  }
+ 
 
   const url = `https://api.themoviedb.org/3/search/${endpoint}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=en-US&page=${pageNumber}&include_adult=false`;
 
@@ -226,13 +224,7 @@ async function searchonTmdb(query, pageNumber) {
     const data = await response.json();
     let results = data.results;
 
-    // Filter by language for bollywood/hollywood
-    if (selectedType === "hollywood") {
-      results = results.filter(item => item.original_language === "en");
-    } else if (selectedType === "bollywood") {
-      results = results.filter(item => item.original_language === "hi");
-    }
-
+  
     results.forEach(item => {
       const mediaType = item.media_type || selectedType;
       if (mediaType !== "movie" && mediaType !== "tv" && mediaType !== "person") return;
@@ -793,6 +785,7 @@ searchIcon.addEventListener("click", () => {
     searchInput.value = "";
     suggestionsBox.innerHTML = "";
     searchIcon.classList.replace("fa-xmark", "fa-magnifying-glass");
+     location.reload()
     searchInput.focus();
   }
 });
@@ -815,10 +808,7 @@ searchInput.addEventListener("input", () => {
   debounceTimeout = setTimeout(async () => {
     let endpoint = selectedType;
 
-    // Use `movie` endpoint for hollywood/bollywood
-    if (selectedType === "hollywood" || selectedType === "bollywood") {
-      endpoint = "movie";
-    }
+  
 
     try {
       const response = await fetch(
@@ -828,12 +818,6 @@ searchInput.addEventListener("input", () => {
 
       let results = data.results || [];
 
-      // Filter by language if needed
-      if (selectedType === "hollywood") {
-        results = results.filter(item => item.original_language === "en");
-      } else if (selectedType === "bollywood") {
-        results = results.filter(item => item.original_language === "hi");
-      }
 
       if (results.length === 0) {
         suggestionsBox.innerHTML = "<div class='no-results'>No results found</div>";
