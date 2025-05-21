@@ -6,7 +6,7 @@
 }
 body{
   filter: grayscale(20%) brightness(90%); 
-  background-color: #FF0000;
+  background-color: #0d0d0d;
   font-family: 'Poppins', sans-serif;
 
 }
