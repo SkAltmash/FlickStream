@@ -6,13 +6,134 @@ const searchInput = document.querySelector(".searchInput");
 const suggestionsBox = document.getElementById("suggestions");
 const searchForm = document.getElementById("searchForm");
 const searchIcon = document.getElementById("searchIcon");
-
+const sidebar =document.querySelector(".sidebar");
 
 const API_KEY = 'd1becbefc947f6d6af137051548adf7f';
 const BASE_URL = 'https://api.themoviedb.org/3';
 let pageNumber = 1;
 let searchTime =1
 let query;
+
+
+
+function hideSlideBar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.style.transform="translateX(-100%)"
+}
+function slidebar(){
+    const sidebar = document.getElementById("sidebar");
+  sidebar.style.transform="translateX(0)"
+}
+window.addEventListener('scroll', () => {
+  hideSlideBar();
+});
+let currentType;
+function loadCategory(type, page = 1) {
+  let url = "";
+  let mediaType = "";
+  const labl = document.querySelector(".labl")
+ 
+  document.querySelector(".label")
+  currentType = type;
+  currentPage = page;
+
+  if (type === "latest") {
+    url = `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=en-US&page=${page}`;
+    mediaType = "movie";
+    labl.innerText=`Latest Movies`;
+    } else if (type === "hollywood") {
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_original_language=en&page=${page}`;
+    mediaType = "movie";  
+    labl.innerText=`Latest Hollywood`;
+    } else if (type === "bollywood") {
+    url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&with_original_language=hi&page=${page}`;
+    mediaType = "movie";
+    labl.innerText=`Latest Bollywood`;
+    } else if (type === "series") {
+    url = `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&page=${page}`;
+    mediaType = "tv";
+    labl.innerText=`Latest Web Series`;
+    }else if(type==="NetflixMovies"){
+    url= `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}&with_networks=213`;
+    mediaType = "movie";
+    labl.innerText=`Movies Trending on Netflix`;
+    }
+    else if(type==="Netflixseries"){
+      url= `https://api.themoviedb.org/3/discover/tv?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}&with_networks=213`;
+      mediaType = "tv";
+      labl.innerText=`Series Trending on Netflix `;
+    }
+
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      const results = data.results || [];
+      const movieList = document.getElementById("movieList");
+
+      if (page === 1) movieList.innerHTML = ""; // Clear only on first load
+     console.log(page)
+      results.forEach(item => {
+        const imgcart = document.createElement('div');
+        imgcart.classList.add("imgcart");
+
+        const posterUrl = item.poster_path
+          ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+          : 'images/logo.png';
+
+        imgcart.innerHTML = `<img src="${posterUrl}">`;
+
+        let ratingClass = '';
+        let ratingText = '';
+        if (!item.vote_average || item.vote_average === 0) {
+          ratingClass = 'rating-no';
+          ratingText = 'N/A';
+        } else if (item.vote_average >= 7) {
+          ratingClass = 'rating-high';
+          ratingText = item.vote_average.toFixed(1);
+        } else if (item.vote_average >= 5) {
+          ratingClass = 'rating-mid';
+          ratingText = item.vote_average.toFixed(1);
+        } else {
+          ratingClass = 'rating-low';
+          ratingText = item.vote_average.toFixed(1);
+        }
+
+        const cartInfo = document.createElement('div');
+        cartInfo.classList.add("cartInfo");
+        cartInfo.innerHTML = `
+          <h4 class="${ratingClass}"><i class="fa-solid fa-star"></i> ${ratingText}</h4>
+          <h4>${item.title || item.name}</h4>
+        `;
+
+        imgcart.appendChild(cartInfo);
+        movieList.appendChild(imgcart);
+
+        imgcart.addEventListener("click", () => {
+          moreDetails(mediaType, item.id);
+          document.querySelector("#Slidebar-content").style.transform = "scale(0)";
+        });
+      });
+
+      document.getElementById("loadMoreBtnforSlidebar").style.display = "block"; // Show load more button
+
+      const SlidebarContent = document.querySelector("#Slidebar-content");
+      if (SlidebarContent) SlidebarContent.style.transform = "scale(1)";
+      
+      hideSlideBar();
+    })
+    .catch(err => {
+      console.error("Error fetching data:", err);
+      document.getElementById("movieList").innerText = "Failed to load content.";
+    });
+}
+
+document.getElementById("loadMoreBtnforSlidebar").addEventListener("click", () => {
+  currentPage++;
+  loadCategory(currentType,currentPage);
+});
+
+
 form.addEventListener('submit',(e)=>{
     e.preventDefault();
     query=form.querySelector('input').value;
@@ -289,12 +410,7 @@ async function searchonTmdb(query, pageNumber) {
       imgcart.addEventListener("click", () => {
         fetchPersonDetails(item.id,item);
             });
-   
-      
-    
-      
-      
-    });
+  });
 
     if (data.page < data.total_pages) {
       btnforSearch.style.display = "flex";
@@ -902,3 +1018,4 @@ function selectMovie(id, mediaType,data) {
    fetchPersonDetails(id,data);
     
 }
+

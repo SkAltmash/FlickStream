@@ -12,10 +12,33 @@
 <body>
   
     <nav>
+        <div id="sidebarBtn" onclick="slidebar()"><i class="fa-solid fa-bars"></i></div>
         <div class="logo">
             <a href="#"><img src="images/logo.png" alt=""> </a>
         </div>
     </nav>
+    <div id="sidebar" class="sidebar">
+      <button id="hideSidebarBtn" onclick="hideSlideBar()" ><i class="fa-solid fa-xmark"></i></button>
+      <h2>Browse</h2>
+      <ul>
+        <li onclick="loadCategory('latest')">Latest Movies</li>
+        <li onclick="loadCategory('hollywood')">Latest Hollywood</li>
+        <li onclick="loadCategory('bollywood')">Latest Bollywood</li>
+        <li onclick="loadCategory('series')">Latest Web Series</li>
+        <li onclick="loadCategory('NetflixMovies')">Movies Trending on Netflix</li>
+        <li onclick="loadCategory('Netflixseries')">Series Trending on Netflix </li>
+       </ul>
+    </div>
+    
+    <!-- Main content -->
+    <div id="Slidebar-content">
+      <h2 class="labl"></h2>
+      <div id="movieList"></div>
+
+      <button id="loadMoreBtnforSlidebar" style="display:none;">Load More</button>
+      
+    </div>
+    
     <form id="searchForm">
       <div>
         <select id="searchType">
@@ -26,7 +49,7 @@
           </select>
         <input type="text" id="searchInput" class="searchInput" placeholder="Search here..." />
         <h3 type="submit" id="searchBtn">
-          <i id="searchIcon" style="color: #fff;" class="fa-solid fa-magnifying-glass"></i>
+          <i id="searchIcon" class="fa-solid fa-magnifying-glass"></i>
         </h3>
       </div>
       <div id="suggestions" class="suggestions-box"></div>
