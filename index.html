@@ -14,11 +14,14 @@
     <nav>
         <div id="sidebarBtn" onclick="slidebar()"><i class="fa-solid fa-bars"></i></div>
         <div class="logo">
-            <a href="#"><img src="images/logo.png" alt=""> </a>
+          <h4>FlickStream</h4> 
         </div>
     </nav>
     <div id="sidebar" class="sidebar">
-      <button id="hideSidebarBtn" onclick="hideSlideBar()" ><i class="fa-solid fa-xmark"></i></button>
+      <div>
+        <button id="theme-toggle"><i class="fa-solid fa-sun"></i></button>
+        <button id="hideSidebarBtn" onclick="hideSlideBar()" ><i class="fa-solid fa-xmark"></i></button>
+      </div>
       <h2>Browse</h2>
       <ul>
         <li onclick="loadCategory('latest')">Latest Movies</li>

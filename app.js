@@ -14,6 +14,40 @@ let pageNumber = 1;
 let searchTime =1
 let query;
 
+const themeToggleButton = document.getElementById('theme-toggle');
+
+const body = document.body;
+
+
+
+// Apply saved theme on load
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+  body.classList.add('light-theme');
+  themeToggleButton.innerHTML = `<i class="fa-solid fa-sun"></i>`;
+} else {
+  themeToggleButton.innerHTML = `<i class="fa-solid fa-moon"></i>`;
+}
+
+themeToggleButton.addEventListener('click', () => {
+  body.classList.add('theme-fade');
+  hideSlideBar(); // Your custom function
+
+  setTimeout(() => {
+    const isLight = body.classList.toggle('light-theme');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+
+    themeToggleButton.innerHTML = isLight
+      ? `<i class="fa-solid fa-sun"></i>`
+      : `<i class="fa-solid fa-moon"></i>`;
+  }, 150);
+
+  setTimeout(() => {
+    body.classList.remove('theme-fade');
+  }, 300);
+});
+
+
 
 
 function hideSlideBar() {
@@ -474,8 +508,9 @@ document.getElementById("searchType").addEventListener("change", () => {
       ? `https://image.tmdb.org/t/p/${posterSize}${data.poster_path}`
       : 'images/logo.png';
 
-    moreDetailsContaner.style.background = `linear-gradient(rgba(0, 0, 0, .85), rgba(0, 0, 0, 1)), url("${posterPath}") center/cover no-repeat`;
-    moreDetailsContaner.innerHTML = '';
+   
+    
+        moreDetailsContaner.innerHTML = '';
     document.querySelector(".personDetails").style.transform = "scale(0)";
 
     const closeBtn = document.createElement('button');

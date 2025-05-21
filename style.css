@@ -1,29 +1,75 @@
+/* Light Theme (Default) */
+.light-theme  {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --primary-color: #007bff;
+  --secondary-color:  #1e90ff;;
+  --sidebar-bg: #f4f4f4;
+  --sidebar-text: #333;
+  --card-bg: #f9f9f9;
+  --card-hover-bg: #eaeaea;
+  --input-bg: #ffffff;
+  --input-border: #ccc;
+  --footer-bg: #f1f1f1;
+  --footer-text: #555;
+}
+
+ :root{
+  --background-color: #0d0d0d;
+  --text-color: #ffffff;
+  --primary-color: #1e90ff;
+  --secondary-color: #e63946;
+  --sidebar-bg: #111;
+  --sidebar-text: #eee;
+  --card-bg: #1e1e1e;
+  --card-hover-bg: #333;
+  --input-bg: #1e1e1e;
+  --input-border: #444;
+  --footer-bg: #121212;
+  --footer-text: #ccc;
+}
 
 *{
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
 }
 body{
   filter: grayscale(20%) brightness(90%); 
   background-color: #0d0d0d;
+  background-color: var(--background-color);
   font-family: 'Poppins', sans-serif;
 
 }
+.theme-fade {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   width: 250px;
   height: 100vh;
-  background-color: #111;
+  background-color: var(--background-color);
   transform: translateX(-100%); /* hide it to the left */
   transition: transform 0.3s ease-in-out; /* smooth slide */
   z-index: 1000;
-  color: #eee;
+  color: var(--text-color);
   padding: 10px;
 }
-
+#theme-toggle{
+  background-color: transparent;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  border: none;
+  outline: none;
+  text-align: left;
+  margin-left: 10px;
+}
 
 .sidebar h2 {
   margin-top: 0;
@@ -37,15 +83,19 @@ body{
 .sidebar li {
   padding: 10px;
   cursor: pointer;
-  border-bottom: 1px solid #333;
-}
+  border-bottom: 1px solid var(--card-hover-bg);
+  color: var(--text-color);
 
+}
+.sidebar h2{
+ color: var(--text-color);
+}
 .sidebar li:hover {
-  background-color: #333;
+  background-color: var(--card-hover-bg);
 }
 #hideSidebarBtn{
   background-color: transparent;
-  color: #eee;
+  color: var(--text-color);
   font-size: 2rem;
   border: none;
   outline: none;
@@ -54,17 +104,20 @@ body{
 }
 
 #sidebarBtn{
-  color: #eee;
+  color: var(--text-color);
   margin-left: 20px;
   font-size: 2rem;
 }
 #sidebarBtn:hover{
   transform: scale(1.2);
 }
+#sidebar div{
+  display: flex;
+}
 #Slidebar-content {
   flex: 1;
-  background-color:black;
-  color: white;
+  background-color:var(--background-color);
+  color: var(--text-color);
   position: fixed;
   top: 70px;
   left: 0;
@@ -85,16 +138,20 @@ body{
 nav{
   height: 70px;
   width: 100vw;
-  background-color: #1a1a1a;
+  background-color: var(--card-bg);
   display: flex;
   align-items: center;
   gap: 20px;
 }
-
-.logo img{
-  height: 50px;
-  object-fit: cover;
+nav h4{
+  color: var(--text-color);
 }
+.logo{
+  display: flex;
+  align-items: center;
+}
+
+
 form{
   display: flex;
   align-items: center;
@@ -120,15 +177,14 @@ form input{
   width: 100%;
   font-size: 1.1rem;
   padding: 10px 16px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  background-color: #1e1e1e;
-  border: 1px solid #e63946;
-  color: #eee;
+  background-color: var(--background-color);
+  border: 1px solid var(--secondary-color);
+  color: var(--text-color);
   border-right: none;
   border-left: none;
 }
 form input::placeholder{
-color: #ccc;
+color: var(--text-color);
 }
 
 form h3{
@@ -139,19 +195,19 @@ form h3{
   width: 30px;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
-  border: 1px solid #e63946;
+  border: 1px solid var(--secondary-color);
   border-left: none;
   font-size: 1.4rem;
-  color: white;
+  color: var(--text-color);
   cursor: pointer;
-  background: #1e1e1e;
+  background: var(--background-color);
   padding-right: 10px;
 }
 #searchType{
-background-color: #1e1e1e;
-color: #eee;
+background-color: var(--background-color);
+color: var(--text-color);
 font-size: 0.7rem;
-border: 1px solid #e63946;
+border: 1px solid var(--secondary-color);
 border-right: none;
 border-top-left-radius: 10px;
 border-bottom-left-radius:10px ;
@@ -160,7 +216,7 @@ outline: none;
 }
 #suggestions.Active {
 display: block;
-border: 1px solid #e63946;
+border: 1px solid var(--secondary-color);
 
 
 }
@@ -177,13 +233,12 @@ left: 50%;
 transform: translateX(-50%); /* centers it horizontally */
 width: 80%;
 max-width: 900px;
-background-color: #1e1e1e;
+background-color: var(--background-color);
 z-index: 2;
 max-height: 300px;
 overflow-y: auto;
 display: flex;
 flex-direction: column;
-box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 border-radius: 10px;
 margin-top: 10px;
 }
@@ -195,7 +250,7 @@ display: flex;
 align-items: center;
 padding: 8px;
 cursor: pointer;
-border-bottom: 1px solid #333;
+border-bottom: 1px solid var(--card-hover-bg);
 }
 
 .suggestion-item img {
@@ -206,7 +261,7 @@ margin-right: 10px;
 }
 
 .suggestion-item span {
-color: #fff;
+color: var(--text-color);
 font-size: 14px;
 }
 
@@ -240,7 +295,7 @@ width: 280px;
 scroll-snap-align: start;
 transition: transform 0.3s ease;
 cursor: pointer;
-background-color: #1e1e1e;
+background-color: var(--card-bg);
 border-radius: 10px;
 transition: 100ms ease-in-out transform;
 
@@ -261,14 +316,14 @@ display: block;
 /* Card info overlay */
 .cartInfo {
 margin-top: 5px;
-color: white;
+color: var(--text-color);
 font-size: 0.85rem;
 font-family: 'Arial', sans-serif;
 height:70px;
 overflow: hidden;
 }
 .main-container h2 ,.labl{
-color: #e63946;
+color: var(--secondary-color);
 padding-top: 20px;
 margin-left: 20px;
 font-size: 1.5rem;
@@ -305,7 +360,6 @@ padding-top: 20px;
 .cartInfo{
   margin-left: 5px;
   width: 80%;
-  color: #eee;
 }
 .cartInfo h4{
   padding-left: 20px;
@@ -328,7 +382,7 @@ margin: 2rem 0;
 }
 
 .load-more-btn {
-background-color: #e50914;
+background-color: var(--secondary-color);
 color: #fff;
 font-size: 1rem;
 padding: 0.75rem 2rem;
@@ -375,14 +429,14 @@ to {
 display:none;
 }
 .more-details,.personDetails {
-padding: 20px;
-color: #fff;
+color: var(--text-color);
 overflow-y: auto;
 position: fixed;
 top: 70px;
 left: 0;
 right: 0;
 transition: 100ms ease-in-out transform;
+background-color: var(--background-color);
 
 }
 
@@ -391,7 +445,7 @@ position: fixed;
 top: 10px;
 right: 25px;
 font-size: 60px;
-color: #fff;
+color: var(--text-color);
 background: transparent;
 border: none;
 cursor: pointer;
@@ -431,7 +485,7 @@ margin:auto;
 }
 
 .trailer-notice {
-color: #ccc;
+color: var(--text-color);
 text-align: center;
 font-size: 1rem;
 }
@@ -448,7 +502,7 @@ margin: 10px 0;
 }
 
 .movie-release {
-color: #bbb;
+color: var(--text-color);
 margin-bottom: 10px;
 }
 
@@ -477,7 +531,7 @@ color: #ccc;
 
 .season-btn.active {
 background: #fff;
-color: #000;
+color: var(--text-color);
 font-weight: bold;
 }
 
@@ -486,7 +540,7 @@ margin-top: 20px;
 }
 
 .episode-card {
-background: #111;
+background: var(--background-color);
 border: 1px solid #444;
 border-radius: 10px;
 padding: 12px;
@@ -557,7 +611,7 @@ flex: 0 0 auto;
 width: 100px;
 scroll-snap-align: start;
 text-align: center;
-color: #ddd;
+color: var(--text-color);
 transition: 100ms ease-in-out transform;
 
 }
@@ -576,7 +630,7 @@ border-radius: 20%;
 
 
 .main-footer {
-background-color: #121212;
+background-color: var(--background-color);
 color: #ccc;
 text-align: center;
 padding: 20px 10px;
@@ -593,7 +647,7 @@ gap: 10px;
 
 .footer-links a {
 margin: 0 10px;
-color: #e63946;
+color: var(--secondary-color);
 text-decoration: none;
 font-size: 0.9rem;
 }
@@ -605,7 +659,7 @@ text-decoration: underline;
 background: transparent;
 border: none;
 outline: none;
-color: #eee;
+color: var(--text-color);
 text-align: end;
 position: fixed;
 right: 40px;
@@ -616,13 +670,13 @@ transform: scale(0);
 display: flex;
 flex-direction: column;
 justify-content: center;
-background-color: black;
+background-color: var(--background-color);
 transition: 100ms ease-in-out transform;
 
 }
 .ActorProfilePictor{
 text-align: center;
-background-color: #1e1e1e;
+background-color: var(--background-color);
 border-radius: 20px;
 }
 .ActorProfilePictor img{
@@ -651,7 +705,7 @@ width: 280px;
 scroll-snap-align: start;
 transition: transform 0.3s ease;
 cursor: pointer;
-background-color: #1e1e1e;
+background-color: var(--background-color);
 border-radius: 10px;
 }
 .movieCard:hover {
@@ -706,18 +760,16 @@ border-radius: 4px;
   height:70px;
   gap: 15px;
  }
- .logo{
-  height: 50px;
- }
+
  .SearchResult,.movieCard{
   gap:15pxx;
  }
- .logo img{
-  height: 50px;
- }
+ 
+
  .imgcart ,.movieCard{
   height: 320px;
   width: 150px;
+  color: var(--text-color);
  }   
   .imgcart img ,.movieCard img{
     height: 60%;
@@ -732,6 +784,7 @@ border-radius: 4px;
     right: 20px;
     top: 10px;
     font-size: 40px;
+    color: var(--text-color);
    }
  
    .episode-inner {
